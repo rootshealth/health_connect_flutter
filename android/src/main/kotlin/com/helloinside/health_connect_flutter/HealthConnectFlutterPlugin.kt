@@ -1,6 +1,5 @@
 package com.helloinside.health_connect_flutter
 
-import android.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -8,12 +7,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
-import android.view.ContextThemeWrapper
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -79,25 +76,14 @@ class HealthConnectPluginImpl(var activity: Activity?) : Pigeon.HealthConnectPlu
                 // include a "cancel" or "no thanks" button that allows the user to
                 // continue using your app without granting the permission.
                 //Alert Dialog that will take user to settings where he can manually give the permissions
-//                val alert = AlertDialog.Builder(activity!!, activity)
-//                    .setMessage("You have permanently disabled the permission")
-//                    .setPositiveButton(
-//                        "Go to Settings"
-//                    ) { _, _ -> openSettings() }.setNegativeButton("Don't Go", null)
-//                    .setCancelable(false).create()
-//                alert.setTitle("Give permission manually")
-//                alert.show()
-
-//                MaterialAlertDialogBuilder(activity!!,
-//                    R.style.Theme_Light)
-//                    .setMessage("Do it")
-//                    .setNegativeButton("Cancel") { _, _ ->
-//                        // Respond to negative button press
-//                    }
-//                    .setPositiveButton("Accept") { _, _ ->
-//                        openSettings()
-//                    }
-//                    .show()
+                val alert = AlertDialog.Builder(activity!!)
+                    .setMessage("You have permanently disabled the permission")
+                    .setPositiveButton(
+                        "Go to Settings"
+                    ) { _, _ -> openSettings() }.setNegativeButton("Don't Go", null)
+                    .setCancelable(false).create()
+                alert.setTitle("Give permission manually")
+                alert.show()
             }
             else -> {
                 ActivityCompat.requestPermissions(
