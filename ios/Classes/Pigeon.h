@@ -8,31 +8,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HealthConnectInitializationParams;
 @class HealthConnectData;
 
-@interface HealthConnectInitializationParams : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithApiKey:(NSString *)apiKey;
-@property(nonatomic, copy) NSString * apiKey;
-@end
-
 @interface HealthConnectData : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithId:(NSString *)id
-    data:(nullable NSString *)data;
-@property(nonatomic, copy) NSString * id;
-@property(nonatomic, copy, nullable) NSString * data;
++ (instancetype)makeWithWeight:(nullable NSNumber *)weight
+    height:(nullable NSNumber *)height;
+@property(nonatomic, strong, nullable) NSNumber * weight;
+@property(nonatomic, strong, nullable) NSNumber * height;
 @end
 
 /// The codec used by HealthConnectPlugin.
 NSObject<FlutterMessageCodec> *HealthConnectPluginGetCodec(void);
 
 @protocol HealthConnectPlugin
-- (void)initializeParams:(HealthConnectInitializationParams *)params completion:(void(^)(FlutterError *_Nullable))completion;
 - (void)requestPermissionWithCompletion:(void(^)(FlutterError *_Nullable))completion;
+- (void)requestPermission2WithError:(FlutterError *_Nullable *_Nonnull)error;
+- (void)openSettingsWithError:(FlutterError *_Nullable *_Nonnull)error;
 - (void)getHealthConnectDataWithCompletion:(void(^)(HealthConnectData *_Nullable, FlutterError *_Nullable))completion;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)hasPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;

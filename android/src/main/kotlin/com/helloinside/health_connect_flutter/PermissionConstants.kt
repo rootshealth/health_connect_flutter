@@ -1,13 +1,17 @@
 package com.helloinside.health_connect_flutter
 
 import android.Manifest
+const val LOG_TAG = "health_connect_plugin"
 
 class Permission {
 
-    object Group {
-        const val LOG_TAG = "health_connect_plugin"
+    object Type {
         const val ACTIVITY_RECOGNITION_PERMISSION = Manifest.permission.ACTIVITY_RECOGNITION
-        const val ACTIVITY_RECOGNITION_CODE = 19
+    }
+
+    object Code {
+        const val ACTIVITY_RECOGNITION = 19
+        const val GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 20
     }
 
     object Status {

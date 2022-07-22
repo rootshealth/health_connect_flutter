@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:health_connect_flutter/health_connect_plugin.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _healthConnectPlugin = HealthConnectPlugin();
 
+  String? _packageName;
   bool? _hasPermission;
   HealthConnectData? _healthConnectData;
 
@@ -30,12 +32,13 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    HealthConnectData? healthConnectData;
+    String? packageName;
     bool? hasPermission;
+    HealthConnectData? healthConnectData;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      //healthConnectData = await _healthConnectPlugin.getHealthConnectData();
+      packageName = (await PackageInfo.fromPlatform()).packageName;
       hasPermission = await _healthConnectPlugin.hasPermission();
     } on PlatformException {
       if (kDebugMode) {
@@ -50,8 +53,9 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _healthConnectData = healthConnectData;
+      _packageName = packageName;
       _hasPermission = hasPermission;
+      _healthConnectData = healthConnectData;
     });
   }
 
@@ -66,12 +70,29 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text('Package name:\n $_packageName', textAlign: TextAlign.center),
+              const SizedBox(height: 10),
               Text('Has permission: ${_hasPermission.toString()}'),
               TextButton(
                   onPressed: () async {
-                    await _healthConnectPlugin.requestPermission();
+                    if (_hasPermission == true) {
+                      await _healthConnectPlugin.openSettings();
+                    } else {
+                      await _healthConnectPlugin.requestPermission2();
+                    }
                   },
-                  child: const Text("Request permission"))
+                  child: const Text("Request permission")),
+              TextButton(
+                  onPressed: () async {
+                    if (_hasPermission == true) {
+                      final healthConnectData = await _healthConnectPlugin.getHealthConnectData();
+                      setState(() {
+                        _healthConnectData = healthConnectData;
+                      });
+                      return;
+                    }
+                  },
+                  child: const Text("Request Health Data"))
             ],
           ),
         ),

@@ -7,48 +7,27 @@ import 'dart:typed_data' show Uint8List, Int32List, Int64List, Float64List;
 import 'package:flutter/foundation.dart' show WriteBuffer, ReadBuffer;
 import 'package:flutter/services.dart';
 
-class HealthConnectInitializationParams {
-  HealthConnectInitializationParams({
-    required this.apiKey,
-  });
-
-  String apiKey;
-
-  Object encode() {
-    final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
-    pigeonMap['apiKey'] = apiKey;
-    return pigeonMap;
-  }
-
-  static HealthConnectInitializationParams decode(Object message) {
-    final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
-    return HealthConnectInitializationParams(
-      apiKey: pigeonMap['apiKey']! as String,
-    );
-  }
-}
-
 class HealthConnectData {
   HealthConnectData({
-    required this.id,
-    this.data,
+    this.weight,
+    this.height,
   });
 
-  String id;
-  String? data;
+  double? weight;
+  double? height;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
-    pigeonMap['id'] = id;
-    pigeonMap['data'] = data;
+    pigeonMap['weight'] = weight;
+    pigeonMap['height'] = height;
     return pigeonMap;
   }
 
   static HealthConnectData decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return HealthConnectData(
-      id: pigeonMap['id']! as String,
-      data: pigeonMap['data'] as String?,
+      weight: pigeonMap['weight'] as double?,
+      height: pigeonMap['height'] as double?,
     );
   }
 }
@@ -61,10 +40,6 @@ class _HealthConnectPluginCodec extends StandardMessageCodec {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
     } else 
-    if (value is HealthConnectInitializationParams) {
-      buffer.putUint8(129);
-      writeValue(buffer, value.encode());
-    } else 
 {
       super.writeValue(buffer, value);
     }
@@ -74,9 +49,6 @@ class _HealthConnectPluginCodec extends StandardMessageCodec {
     switch (type) {
       case 128:       
         return HealthConnectData.decode(readValue(buffer)!);
-      
-      case 129:       
-        return HealthConnectInitializationParams.decode(readValue(buffer)!);
       
       default:      
         return super.readValueOfType(type, buffer);
@@ -95,11 +67,11 @@ class HealthConnectPlugin {
 
   static const MessageCodec<Object?> codec = _HealthConnectPluginCodec();
 
-  Future<void> initialize(HealthConnectInitializationParams arg_params) async {
+  Future<void> requestPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.initialize', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectPlugin.requestPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
-        await channel.send(<Object?>[arg_params]) as Map<Object?, Object?>?;
+        await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -117,9 +89,31 @@ class HealthConnectPlugin {
     }
   }
 
-  Future<void> requestPermission() async {
+  Future<void> requestPermission2() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.requestPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectPlugin.requestPermission2', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> openSettings() async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.HealthConnectPlugin.openSettings', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {

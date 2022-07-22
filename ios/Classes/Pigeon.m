@@ -31,57 +31,31 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 
 
-@interface HealthConnectInitializationParams ()
-+ (HealthConnectInitializationParams *)fromMap:(NSDictionary *)dict;
-+ (nullable HealthConnectInitializationParams *)nullableFromMap:(NSDictionary *)dict;
-- (NSDictionary *)toMap;
-@end
 @interface HealthConnectData ()
 + (HealthConnectData *)fromMap:(NSDictionary *)dict;
 + (nullable HealthConnectData *)nullableFromMap:(NSDictionary *)dict;
 - (NSDictionary *)toMap;
 @end
 
-@implementation HealthConnectInitializationParams
-+ (instancetype)makeWithApiKey:(NSString *)apiKey {
-  HealthConnectInitializationParams* pigeonResult = [[HealthConnectInitializationParams alloc] init];
-  pigeonResult.apiKey = apiKey;
-  return pigeonResult;
-}
-+ (HealthConnectInitializationParams *)fromMap:(NSDictionary *)dict {
-  HealthConnectInitializationParams *pigeonResult = [[HealthConnectInitializationParams alloc] init];
-  pigeonResult.apiKey = GetNullableObject(dict, @"apiKey");
-  NSAssert(pigeonResult.apiKey != nil, @"");
-  return pigeonResult;
-}
-+ (nullable HealthConnectInitializationParams *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [HealthConnectInitializationParams fromMap:dict] : nil; }
-- (NSDictionary *)toMap {
-  return @{
-    @"apiKey" : (self.apiKey ?: [NSNull null]),
-  };
-}
-@end
-
 @implementation HealthConnectData
-+ (instancetype)makeWithId:(NSString *)id
-    data:(nullable NSString *)data {
++ (instancetype)makeWithWeight:(nullable NSNumber *)weight
+    height:(nullable NSNumber *)height {
   HealthConnectData* pigeonResult = [[HealthConnectData alloc] init];
-  pigeonResult.id = id;
-  pigeonResult.data = data;
+  pigeonResult.weight = weight;
+  pigeonResult.height = height;
   return pigeonResult;
 }
 + (HealthConnectData *)fromMap:(NSDictionary *)dict {
   HealthConnectData *pigeonResult = [[HealthConnectData alloc] init];
-  pigeonResult.id = GetNullableObject(dict, @"id");
-  NSAssert(pigeonResult.id != nil, @"");
-  pigeonResult.data = GetNullableObject(dict, @"data");
+  pigeonResult.weight = GetNullableObject(dict, @"weight");
+  pigeonResult.height = GetNullableObject(dict, @"height");
   return pigeonResult;
 }
 + (nullable HealthConnectData *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [HealthConnectData fromMap:dict] : nil; }
 - (NSDictionary *)toMap {
   return @{
-    @"id" : (self.id ?: [NSNull null]),
-    @"data" : (self.data ?: [NSNull null]),
+    @"weight" : (self.weight ?: [NSNull null]),
+    @"height" : (self.height ?: [NSNull null]),
   };
 }
 @end
@@ -94,9 +68,6 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   switch (type) {
     case 128:     
       return [HealthConnectData fromMap:[self readValue]];
-    
-    case 129:     
-      return [HealthConnectInitializationParams fromMap:[self readValue]];
     
     default:    
       return [super readValueOfType:type];
@@ -112,10 +83,6 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 {
   if ([value isKindOfClass:[HealthConnectData class]]) {
     [self writeByte:128];
-    [self writeValue:[value toMap]];
-  } else 
-  if ([value isKindOfClass:[HealthConnectInitializationParams class]]) {
-    [self writeByte:129];
     [self writeValue:[value toMap]];
   } else 
 {
@@ -150,15 +117,13 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.initialize"
+        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.requestPermission"
         binaryMessenger:binaryMessenger
         codec:HealthConnectPluginGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(initializeParams:completion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(initializeParams:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(requestPermissionWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(requestPermissionWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray *args = message;
-        HealthConnectInitializationParams *arg_params = GetNullableObjectAtIndex(args, 0);
-        [api initializeParams:arg_params completion:^(FlutterError *_Nullable error) {
+        [api requestPermissionWithCompletion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
         }];
       }];
@@ -170,15 +135,33 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.requestPermission"
+        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.requestPermission2"
         binaryMessenger:binaryMessenger
         codec:HealthConnectPluginGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(requestPermissionWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(requestPermissionWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(requestPermission2WithError:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(requestPermission2WithError:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        [api requestPermissionWithCompletion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
+        FlutterError *error;
+        [api requestPermission2WithError:&error];
+        callback(wrapResult(nil, error));
+      }];
+    }
+    else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.openSettings"
+        binaryMessenger:binaryMessenger
+        codec:HealthConnectPluginGetCodec()        ];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(openSettingsWithError:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(openSettingsWithError:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        FlutterError *error;
+        [api openSettingsWithError:&error];
+        callback(wrapResult(nil, error));
       }];
     }
     else {
