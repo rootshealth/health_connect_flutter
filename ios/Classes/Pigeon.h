@@ -9,6 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class HealthConnectData;
+@class HealthConnectWorkoutData;
 
 @interface HealthConnectData : NSObject
 + (instancetype)makeWithWeight:(nullable NSNumber *)weight
@@ -17,16 +18,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) NSNumber * height;
 @end
 
+@interface HealthConnectWorkoutData : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithData:(NSArray<NSString *> *)data;
+@property(nonatomic, strong) NSArray<NSString *> * data;
+@end
+
 /// The codec used by HealthConnectPlugin.
 NSObject<FlutterMessageCodec> *HealthConnectPluginGetCodec(void);
 
 @protocol HealthConnectPlugin
-- (void)requestPermissionWithCompletion:(void(^)(FlutterError *_Nullable))completion;
-- (void)requestPermission2WithError:(FlutterError *_Nullable *_Nonnull)error;
-- (void)openSettingsWithError:(FlutterError *_Nullable *_Nonnull)error;
-- (void)getHealthConnectDataWithCompletion:(void(^)(HealthConnectData *_Nullable, FlutterError *_Nullable))completion;
+- (void)requestPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)hasPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;
+- (void)openSettingsWithError:(FlutterError *_Nullable *_Nonnull)error;
+- (void)disconnectWithCompletion:(void(^)(FlutterError *_Nullable))completion;
+- (void)getHealthConnectDataWithCompletion:(void(^)(HealthConnectData *_Nullable, FlutterError *_Nullable))completion;
+- (void)getHealthConnectWorkoutDataWithCompletion:(void(^)(HealthConnectWorkoutData *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<HealthConnectPlugin> *_Nullable api);

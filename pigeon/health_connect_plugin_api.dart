@@ -10,17 +10,28 @@ class HealthConnectData {
   });
 }
 
+class HealthConnectWorkoutData {
+  final List<String?> data;
+
+  HealthConnectWorkoutData({
+    required this.data,
+  });
+}
+
 @HostApi()
 abstract class HealthConnectPlugin {
-  @async
   void requestPermission();
 
-  void requestPermission2();
+  bool hasPermission();
 
   void openSettings();
 
   @async
+  void disconnect();
+
+  @async
   HealthConnectData getHealthConnectData();
 
-  bool hasPermission();
+  @async
+  HealthConnectWorkoutData getHealthConnectWorkoutData();
 }

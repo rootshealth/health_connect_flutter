@@ -70,6 +70,44 @@ public class Pigeon {
     }
   }
 
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static class HealthConnectWorkoutData {
+    private @NonNull List<String> data;
+    public @NonNull List<String> getData() { return data; }
+    public void setData(@NonNull List<String> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"data\" is null.");
+      }
+      this.data = setterArg;
+    }
+
+    /** Constructor is private to enforce null safety; use Builder. */
+    private HealthConnectWorkoutData() {}
+    public static final class Builder {
+      private @Nullable List<String> data;
+      public @NonNull Builder setData(@NonNull List<String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+      public @NonNull HealthConnectWorkoutData build() {
+        HealthConnectWorkoutData pigeonReturn = new HealthConnectWorkoutData();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+    @NonNull Map<String, Object> toMap() {
+      Map<String, Object> toMapResult = new HashMap<>();
+      toMapResult.put("data", data);
+      return toMapResult;
+    }
+    static @NonNull HealthConnectWorkoutData fromMap(@NonNull Map<String, Object> map) {
+      HealthConnectWorkoutData pigeonResult = new HealthConnectWorkoutData();
+      Object data = map.get("data");
+      pigeonResult.setData((List<String>)data);
+      return pigeonResult;
+    }
+  }
+
   public interface Result<T> {
     void success(T result);
     void error(Throwable error);
@@ -83,6 +121,9 @@ public class Pigeon {
         case (byte)128:         
           return HealthConnectData.fromMap((Map<String, Object>) readValue(buffer));
         
+        case (byte)129:         
+          return HealthConnectWorkoutData.fromMap((Map<String, Object>) readValue(buffer));
+        
         default:        
           return super.readValueOfType(type, buffer);
         
@@ -94,6 +135,10 @@ public class Pigeon {
         stream.write(128);
         writeValue(stream, ((HealthConnectData) value).toMap());
       } else 
+      if (value instanceof HealthConnectWorkoutData) {
+        stream.write(129);
+        writeValue(stream, ((HealthConnectWorkoutData) value).toMap());
+      } else 
 {
         super.writeValue(stream, value);
       }
@@ -102,11 +147,12 @@ public class Pigeon {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface HealthConnectPlugin {
-    void requestPermission(Result<Void> result);
-    void requestPermission2();
-    void openSettings();
-    void getHealthConnectData(Result<HealthConnectData> result);
+    void requestPermission();
     @NonNull Boolean hasPermission();
+    void openSettings();
+    void disconnect(Result<Void> result);
+    void getHealthConnectData(Result<HealthConnectData> result);
+    void getHealthConnectWorkoutData(Result<HealthConnectWorkoutData> result);
 
     /** The codec used by HealthConnectPlugin. */
     static MessageCodec<Object> getCodec() {
@@ -122,23 +168,13 @@ public class Pigeon {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              Result<Void> resultCallback = new Result<Void>() {
-                public void success(Void result) {
-                  wrapped.put("result", null);
-                  reply.reply(wrapped);
-                }
-                public void error(Throwable error) {
-                  wrapped.put("error", wrapError(error));
-                  reply.reply(wrapped);
-                }
-              };
-
-              api.requestPermission(resultCallback);
+              api.requestPermission();
+              wrapped.put("result", null);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
-              reply.reply(wrapped);
             }
+            reply.reply(wrapped);
           });
         } else {
           channel.setMessageHandler(null);
@@ -146,13 +182,13 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.requestPermission2", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.hasPermission", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              api.requestPermission2();
-              wrapped.put("result", null);
+              Boolean output = api.hasPermission();
+              wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
@@ -177,6 +213,35 @@ public class Pigeon {
               wrapped.put("error", wrapError(exception));
             }
             reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.disconnect", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              Result<Void> resultCallback = new Result<Void>() {
+                public void success(Void result) {
+                  wrapped.put("result", null);
+                  reply.reply(wrapped);
+                }
+                public void error(Throwable error) {
+                  wrapped.put("error", wrapError(error));
+                  reply.reply(wrapped);
+                }
+              };
+
+              api.disconnect(resultCallback);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+              reply.reply(wrapped);
+            }
           });
         } else {
           channel.setMessageHandler(null);
@@ -213,18 +278,28 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.hasPermission", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectWorkoutData", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              Boolean output = api.hasPermission();
-              wrapped.put("result", output);
+              Result<HealthConnectWorkoutData> resultCallback = new Result<HealthConnectWorkoutData>() {
+                public void success(HealthConnectWorkoutData result) {
+                  wrapped.put("result", result);
+                  reply.reply(wrapped);
+                }
+                public void error(Throwable error) {
+                  wrapped.put("error", wrapError(error));
+                  reply.reply(wrapped);
+                }
+              };
+
+              api.getHealthConnectWorkoutData(resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
+              reply.reply(wrapped);
             }
-            reply.reply(wrapped);
           });
         } else {
           channel.setMessageHandler(null);

@@ -61,6 +61,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final buttonStyle = TextButton.styleFrom(
+      primary: Colors.white,
+      backgroundColor: Colors.teal,
+      onSurface: Colors.grey,
+    );
+    const titleStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -70,29 +76,40 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Package name:\n $_packageName', textAlign: TextAlign.center),
-              const SizedBox(height: 10),
+              const Text('Package name', style: titleStyle),
+              Text('$_packageName', textAlign: TextAlign.center),
+              const Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: Text("Permissions", style: titleStyle),
+              ),
               Text('Has permission: ${_hasPermission.toString()}'),
               TextButton(
-                  onPressed: () async {
-                    if (_hasPermission == true) {
-                      await _healthConnectPlugin.openSettings();
-                    } else {
-                      await _healthConnectPlugin.requestPermission2();
-                    }
-                  },
+                  style: buttonStyle,
+                  onPressed: () async => await _healthConnectPlugin.requestPermission(),
                   child: const Text("Request permission")),
               TextButton(
+                  style: buttonStyle,
+                  onPressed: () async => await _healthConnectPlugin.openSettings(),
+                  child: const Text("Open settings")),
+              TextButton(
+                  style: buttonStyle,
+                  onPressed: () async => await _healthConnectPlugin.disconnect(),
+                  child: const Text("Disconnect")),
+              const Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: Text("Data", style: titleStyle),
+              ),
+              TextButton(
+                  style: buttonStyle,
                   onPressed: () async {
-                    if (_hasPermission == true) {
-                      final healthConnectData = await _healthConnectPlugin.getHealthConnectData();
-                      setState(() {
-                        _healthConnectData = healthConnectData;
-                      });
-                      return;
-                    }
+                    final healthConnectData = await _healthConnectPlugin.getHealthConnectData();
+                    setState(() {
+                      _healthConnectData = healthConnectData;
+                    });
                   },
-                  child: const Text("Request Health Data"))
+                  child: const Text("Request Health Data")),
+              Text("Height: ${_healthConnectData?.height.toString()}"),
+              Text("Weight: ${_healthConnectData?.weight.toString()}")
             ],
           ),
         ),

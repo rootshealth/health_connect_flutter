@@ -32,12 +32,37 @@ class HealthConnectData {
   }
 }
 
+class HealthConnectWorkoutData {
+  HealthConnectWorkoutData({
+    required this.data,
+  });
+
+  List<String?> data;
+
+  Object encode() {
+    final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
+    pigeonMap['data'] = data;
+    return pigeonMap;
+  }
+
+  static HealthConnectWorkoutData decode(Object message) {
+    final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
+    return HealthConnectWorkoutData(
+      data: (pigeonMap['data'] as List<Object?>?)!.cast<String?>(),
+    );
+  }
+}
+
 class _HealthConnectPluginCodec extends StandardMessageCodec {
   const _HealthConnectPluginCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
     if (value is HealthConnectData) {
       buffer.putUint8(128);
+      writeValue(buffer, value.encode());
+    } else 
+    if (value is HealthConnectWorkoutData) {
+      buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else 
 {
@@ -49,6 +74,9 @@ class _HealthConnectPluginCodec extends StandardMessageCodec {
     switch (type) {
       case 128:       
         return HealthConnectData.decode(readValue(buffer)!);
+      
+      case 129:       
+        return HealthConnectWorkoutData.decode(readValue(buffer)!);
       
       default:      
         return super.readValueOfType(type, buffer);
@@ -89,9 +117,36 @@ class HealthConnectPlugin {
     }
   }
 
-  Future<void> requestPermission2() async {
+  Future<bool> hasPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.requestPermission2', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectPlugin.hasPermission', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else if (replyMap['result'] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyMap['result'] as bool?)!;
+    }
+  }
+
+  Future<void> openSettings() async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.HealthConnectPlugin.openSettings', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -111,9 +166,9 @@ class HealthConnectPlugin {
     }
   }
 
-  Future<void> openSettings() async {
+  Future<void> disconnect() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.openSettings', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectPlugin.disconnect', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -160,9 +215,9 @@ class HealthConnectPlugin {
     }
   }
 
-  Future<bool> hasPermission() async {
+  Future<HealthConnectWorkoutData> getHealthConnectWorkoutData() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.hasPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectWorkoutData', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -183,7 +238,7 @@ class HealthConnectPlugin {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (replyMap['result'] as bool?)!;
+      return (replyMap['result'] as HealthConnectWorkoutData?)!;
     }
   }
 }
