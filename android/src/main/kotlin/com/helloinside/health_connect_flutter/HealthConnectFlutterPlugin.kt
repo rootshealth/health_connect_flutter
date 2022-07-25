@@ -73,6 +73,8 @@ class HealthConnectPluginImpl(
 
     override fun requestActivityRecognitionPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
         Log.e(TAG, "requestActivityRecognitionPermission")
+        // https://stackoverflow.com/questions/65666404/java-lang-illegalstateexception-reply-already-submitted-when-trying-to-call
+        var requestInProgress = false
         if (hasActivityRecognitionPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
@@ -98,11 +100,17 @@ class HealthConnectPluginImpl(
                                 .setPermissionType(Pigeon.PermissionType.activityRecognition)
                                 .setPermissionStatus(permissionStatus)
                                 .build()
-                            result?.success(permissionResult)
+                            if (requestInProgress) {
+                                requestInProgress = false
+                                result?.success(permissionResult)
+                            }
                             permissionGranted
                         }
                         else -> {
-                            result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                            if (requestInProgress) {
+                                requestInProgress = false
+                                result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                            }
                             false
                         }
                     }
@@ -115,6 +123,7 @@ class HealthConnectPluginImpl(
                 arrayOf(Permission.Type.ACTIVITY_RECOGNITION_PERMISSION),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
+            requestInProgress = true
             return
         }
         Log.e(TAG, "Activity was not attached")
@@ -134,6 +143,7 @@ class HealthConnectPluginImpl(
 
     override fun requestOAuthPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
         Log.e(TAG, "requestOAuthPermission")
+        var requestInProgress = false
         if (hasOAuthPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
@@ -159,11 +169,17 @@ class HealthConnectPluginImpl(
                                 .setPermissionType(Pigeon.PermissionType.oAuth)
                                 .setPermissionStatus(permissionStatus)
                                 .build()
-                            result?.success(permissionResult)
+                            if (requestInProgress) {
+                                requestInProgress = false
+                                result?.success(permissionResult)
+                            }
                             permissionGranted
                         }
                         else -> {
-                            result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                            if (requestInProgress) {
+                                requestInProgress = false
+                                result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                            }
                             false
                         }
                     }
@@ -179,6 +195,7 @@ class HealthConnectPluginImpl(
                 account,
                 fitnessOptions
             )
+            requestInProgress = true
             return
         }
         Log.e(TAG, "Activity was not attached")
