@@ -1,7 +1,8 @@
 package com.helloinside.health_connect_flutter
 
 import android.Manifest
-const val LOG_TAG = "health_connect_plugin"
+
+const val TAG = "health_connect_plugin"
 
 class Permission {
 

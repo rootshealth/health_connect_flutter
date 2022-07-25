@@ -1,5 +1,13 @@
 import 'package:pigeon/pigeon.dart';
 
+enum PermissionStatus { granted, denied }
+
+class PermissionResult {
+  final PermissionStatus permissionStatus;
+
+  PermissionResult(this.permissionStatus);
+}
+
 class HealthConnectData {
   final double? weight;
   final double? height;
@@ -20,9 +28,15 @@ class HealthConnectWorkoutData {
 
 @HostApi()
 abstract class HealthConnectPlugin {
-  void requestPermission();
+  @async
+  PermissionResult requestActivityRecognitionPermission();
 
-  bool hasPermission();
+  bool hasActivityRecognitionPermission();
+
+  @async
+  PermissionResult requestOAuthPermission();
+
+  bool hasOAuthPermission();
 
   void openSettings();
 

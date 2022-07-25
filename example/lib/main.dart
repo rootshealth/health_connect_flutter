@@ -14,14 +14,15 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<StatefulWidget> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   final _healthConnectPlugin = HealthConnectPlugin();
 
   String? _packageName;
-  bool? _hasPermission;
+  PermissionResult? _activityRecognitionPermissionResult;
+  PermissionResult? _oAuthPermissionResult;
   HealthConnectData? _healthConnectData;
 
   @override
@@ -39,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     try {
       packageName = (await PackageInfo.fromPlatform()).packageName;
-      hasPermission = await _healthConnectPlugin.hasPermission();
+      //hasPermission = await _healthConnectPlugin.hasPermission();
     } on PlatformException {
       if (kDebugMode) {
         print("Failed to resolve platform method!");
@@ -54,7 +55,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _packageName = packageName;
-      _hasPermission = hasPermission;
+      //_hasPermission = hasPermission;
       _healthConnectData = healthConnectData;
     });
   }
@@ -82,11 +83,29 @@ class _MyAppState extends State<MyApp> {
                 padding: EdgeInsets.only(top: 30),
                 child: Text("Permissions", style: titleStyle),
               ),
-              Text('Has permission: ${_hasPermission.toString()}'),
+              Text(
+                  'Activity Recognition status: ${_activityRecognitionPermissionResult?.permissionStatus.toString()}'),
+              Text(
+                  'OAuth permission status: ${_oAuthPermissionResult?.permissionStatus.toString()}'),
               TextButton(
                   style: buttonStyle,
-                  onPressed: () async => await _healthConnectPlugin.requestPermission(),
-                  child: const Text("Request permission")),
+                  onPressed: () async {
+                    final permissionResult =
+                        await _healthConnectPlugin.requestActivityRecognitionPermission();
+                    setState(() {
+                      _activityRecognitionPermissionResult = permissionResult;
+                    });
+                  },
+                  child: const Text("Request Activity Recognition permission")),
+              TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    final permissionResult = await _healthConnectPlugin.requestOAuthPermission();
+                    setState(() {
+                      _oAuthPermissionResult = permissionResult;
+                    });
+                  },
+                  child: const Text("Request Google Fit OAuth permission")),
               TextButton(
                   style: buttonStyle,
                   onPressed: () async => await _healthConnectPlugin.openSettings(),
