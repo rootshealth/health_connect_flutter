@@ -1,5 +1,6 @@
 package com.helloinside.health_connect_flutter
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -104,14 +105,14 @@ class HealthConnectPluginImpl(
                                 requestInProgress = false
                                 result?.success(permissionResult)
                             }
-                            permissionGranted
+                            return@RequestPermissionsResultListener permissionGranted
                         }
                         else -> {
                             if (requestInProgress) {
                                 requestInProgress = false
                                 result?.error(Exception("Something went wrong! Error code could not be retrieved"))
                             }
-                            false
+                            return@RequestPermissionsResultListener false
                         }
                     }
                 }
@@ -156,36 +157,27 @@ class HealthConnectPluginImpl(
 
         activityPluginBinding?.let { activityPluginBinding ->
             val listener =
-                PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
-                    when (requestCode) {
-                        Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE -> {
-                            val permissionGranted = grantResults.isNotEmpty() &&
-                                    grantResults[0] == PackageManager.PERMISSION_GRANTED
-                            val permissionStatus = when (permissionGranted) {
-                                true -> Pigeon.PermissionStatus.granted
-                                else -> Pigeon.PermissionStatus.denied
-                            }
-                            val permissionResult = Pigeon.PermissionResult.Builder()
-                                .setPermissionType(Pigeon.PermissionType.oAuth)
-                                .setPermissionStatus(permissionStatus)
-                                .build()
-                            if (requestInProgress) {
-                                requestInProgress = false
-                                result?.success(permissionResult)
-                            }
-                            permissionGranted
+                PluginRegistry.ActivityResultListener { requestCode, resultCode, _ ->
+                    if (resultCode == Activity.RESULT_OK && requestCode == Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+                        val permissionResult = Pigeon.PermissionResult.Builder()
+                            .setPermissionType(Pigeon.PermissionType.oAuth)
+                            .setPermissionStatus(Pigeon.PermissionStatus.granted)
+                            .build()
+                        if (requestInProgress) {
+                            requestInProgress = false
+                            result?.success(permissionResult)
                         }
-                        else -> {
-                            if (requestInProgress) {
-                                requestInProgress = false
-                                result?.error(Exception("Something went wrong! Error code could not be retrieved"))
-                            }
-                            false
-                        }
+                        return@ActivityResultListener true
                     }
+                    if (requestInProgress) {
+                        requestInProgress = false
+                        result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                    }
+                    return@ActivityResultListener false
                 }
-            activityPluginBinding.removeRequestPermissionsResultListener(listener)
-            activityPluginBinding.addRequestPermissionsResultListener(listener)
+
+            activityPluginBinding.removeActivityResultListener(listener)
+            activityPluginBinding.addActivityResultListener(listener)
 
             val account =
                 GoogleSignIn.getAccountForExtension(activityPluginBinding.activity, fitnessOptions)
