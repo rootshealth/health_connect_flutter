@@ -275,8 +275,9 @@ class HealthConnectPluginImpl(
                     if (!heightDataSet.isEmpty && heightDataSet.dataPoints.isNotEmpty()) {
                         val heightValue =
                             heightDataSet.dataPoints.first().getValue(Field.FIELD_HEIGHT)
-                        val height = heightValue.asFloat().toDouble()
-                        healthConnectDataBuilder.setHeight(height)
+                        val heightInMeters = heightValue.asFloat().toDouble()
+                        val heightInCm = heightInMeters * 100
+                        healthConnectDataBuilder.setHeight(heightInCm)
                     }
 
                     val weightDataSet = it.getDataSet(DataType.TYPE_WEIGHT)
