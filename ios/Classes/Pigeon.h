@@ -13,6 +13,11 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
   PermissionStatusDenied = 1,
 };
 
+typedef NS_ENUM(NSUInteger, PermissionType) {
+  PermissionTypeActivityRecognition = 0,
+  PermissionTypeOAuth = 1,
+};
+
 @class PermissionResult;
 @class HealthConnectData;
 @class HealthConnectWorkoutData;
@@ -20,7 +25,9 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 @interface PermissionResult : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
 - (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithPermissionStatus:(PermissionStatus)permissionStatus;
++ (instancetype)makeWithPermissionType:(PermissionType)permissionType
+    permissionStatus:(PermissionStatus)permissionStatus;
+@property(nonatomic, assign) PermissionType permissionType;
 @property(nonatomic, assign) PermissionStatus permissionStatus;
 @end
 

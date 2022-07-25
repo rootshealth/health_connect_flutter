@@ -76,6 +76,7 @@ class HealthConnectPluginImpl(
         if (hasActivityRecognitionPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
+                    .setPermissionType(Pigeon.PermissionType.activityRecognition)
                     .setPermissionStatus(Pigeon.PermissionStatus.granted)
                     .build()
             )
@@ -94,6 +95,7 @@ class HealthConnectPluginImpl(
                                 else -> Pigeon.PermissionStatus.denied
                             }
                             val permissionResult = Pigeon.PermissionResult.Builder()
+                                .setPermissionType(Pigeon.PermissionType.activityRecognition)
                                 .setPermissionStatus(permissionStatus)
                                 .build()
                             result?.success(permissionResult)
@@ -135,6 +137,7 @@ class HealthConnectPluginImpl(
         if (hasOAuthPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
+                    .setPermissionType(Pigeon.PermissionType.oAuth)
                     .setPermissionStatus(Pigeon.PermissionStatus.granted)
                     .build()
             )
@@ -153,6 +156,7 @@ class HealthConnectPluginImpl(
                                 else -> Pigeon.PermissionStatus.denied
                             }
                             val permissionResult = Pigeon.PermissionResult.Builder()
+                                .setPermissionType(Pigeon.PermissionType.oAuth)
                                 .setPermissionStatus(permissionStatus)
                                 .build()
                             result?.success(permissionResult)

@@ -48,19 +48,23 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 @end
 
 @implementation PermissionResult
-+ (instancetype)makeWithPermissionStatus:(PermissionStatus)permissionStatus {
++ (instancetype)makeWithPermissionType:(PermissionType)permissionType
+    permissionStatus:(PermissionStatus)permissionStatus {
   PermissionResult* pigeonResult = [[PermissionResult alloc] init];
+  pigeonResult.permissionType = permissionType;
   pigeonResult.permissionStatus = permissionStatus;
   return pigeonResult;
 }
 + (PermissionResult *)fromMap:(NSDictionary *)dict {
   PermissionResult *pigeonResult = [[PermissionResult alloc] init];
+  pigeonResult.permissionType = [GetNullableObject(dict, @"permissionType") integerValue];
   pigeonResult.permissionStatus = [GetNullableObject(dict, @"permissionStatus") integerValue];
   return pigeonResult;
 }
 + (nullable PermissionResult *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [PermissionResult fromMap:dict] : nil; }
 - (NSDictionary *)toMap {
   return @{
+    @"permissionType" : @(self.permissionType),
     @"permissionStatus" : @(self.permissionStatus),
   };
 }

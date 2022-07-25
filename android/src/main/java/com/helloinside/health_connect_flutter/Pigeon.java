@@ -32,8 +32,27 @@ public class Pigeon {
     }
   }
 
+  public enum PermissionType {
+    activityRecognition(0),
+    oAuth(1);
+
+    private int index;
+    private PermissionType(final int index) {
+      this.index = index;
+    }
+  }
+
   /** Generated class from Pigeon that represents data sent in messages. */
   public static class PermissionResult {
+    private @NonNull PermissionType permissionType;
+    public @NonNull PermissionType getPermissionType() { return permissionType; }
+    public void setPermissionType(@NonNull PermissionType setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"permissionType\" is null.");
+      }
+      this.permissionType = setterArg;
+    }
+
     private @NonNull PermissionStatus permissionStatus;
     public @NonNull PermissionStatus getPermissionStatus() { return permissionStatus; }
     public void setPermissionStatus(@NonNull PermissionStatus setterArg) {
@@ -46,6 +65,11 @@ public class Pigeon {
     /** Constructor is private to enforce null safety; use Builder. */
     private PermissionResult() {}
     public static final class Builder {
+      private @Nullable PermissionType permissionType;
+      public @NonNull Builder setPermissionType(@NonNull PermissionType setterArg) {
+        this.permissionType = setterArg;
+        return this;
+      }
       private @Nullable PermissionStatus permissionStatus;
       public @NonNull Builder setPermissionStatus(@NonNull PermissionStatus setterArg) {
         this.permissionStatus = setterArg;
@@ -53,17 +77,21 @@ public class Pigeon {
       }
       public @NonNull PermissionResult build() {
         PermissionResult pigeonReturn = new PermissionResult();
+        pigeonReturn.setPermissionType(permissionType);
         pigeonReturn.setPermissionStatus(permissionStatus);
         return pigeonReturn;
       }
     }
     @NonNull Map<String, Object> toMap() {
       Map<String, Object> toMapResult = new HashMap<>();
+      toMapResult.put("permissionType", permissionType == null ? null : permissionType.index);
       toMapResult.put("permissionStatus", permissionStatus == null ? null : permissionStatus.index);
       return toMapResult;
     }
     static @NonNull PermissionResult fromMap(@NonNull Map<String, Object> map) {
       PermissionResult pigeonResult = new PermissionResult();
+      Object permissionType = map.get("permissionType");
+      pigeonResult.setPermissionType(permissionType == null ? null : PermissionType.values()[(int)permissionType]);
       Object permissionStatus = map.get("permissionStatus");
       pigeonResult.setPermissionStatus(permissionStatus == null ? null : PermissionStatus.values()[(int)permissionStatus]);
       return pigeonResult;

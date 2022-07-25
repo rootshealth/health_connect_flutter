@@ -12,15 +12,23 @@ enum PermissionStatus {
   denied,
 }
 
+enum PermissionType {
+  activityRecognition,
+  oAuth,
+}
+
 class PermissionResult {
   PermissionResult({
+    required this.permissionType,
     required this.permissionStatus,
   });
 
+  PermissionType permissionType;
   PermissionStatus permissionStatus;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
+    pigeonMap['permissionType'] = permissionType.index;
     pigeonMap['permissionStatus'] = permissionStatus.index;
     return pigeonMap;
   }
@@ -28,6 +36,8 @@ class PermissionResult {
   static PermissionResult decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return PermissionResult(
+      permissionType: PermissionType.values[pigeonMap['permissionType']! as int]
+,
       permissionStatus: PermissionStatus.values[pigeonMap['permissionStatus']! as int]
 ,
     );

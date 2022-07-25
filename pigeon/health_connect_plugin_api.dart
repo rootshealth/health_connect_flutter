@@ -2,10 +2,14 @@ import 'package:pigeon/pigeon.dart';
 
 enum PermissionStatus { granted, denied }
 
+enum PermissionType { activityRecognition, oAuth }
+
 class PermissionResult {
+  final PermissionType permissionType;
+
   final PermissionStatus permissionStatus;
 
-  PermissionResult(this.permissionStatus);
+  PermissionResult(this.permissionType, this.permissionStatus);
 }
 
 class HealthConnectData {
