@@ -27,15 +27,20 @@ class HealthConnectFlutterPlugin : FlutterPlugin, ActivityAware {
 
     private lateinit var healthConnectPluginImpl: HealthConnectPluginImpl
 
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         healthConnectPluginImpl = HealthConnectPluginImpl(null)
         Pigeon.HealthConnectPlugin.setup(
-            flutterPluginBinding.binaryMessenger,
+            binding.binaryMessenger,
             healthConnectPluginImpl
         )
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {}
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        Pigeon.HealthConnectPlugin.setup(
+            binding.binaryMessenger,
+            null
+        )
+    }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         healthConnectPluginImpl.activity = binding.activity
@@ -94,25 +99,31 @@ class HealthConnectPluginImpl(var activity: Activity?) : Pigeon.HealthConnectPlu
     }
 
     override fun disconnect(result: Pigeon.Result<Void>?) {
-        activity?.let {
-            val fitnessOptions = FitnessOptions.builder()
-                .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_WORKOUT_EXERCISE, FitnessOptions.ACCESS_READ)
-                .build()
-            Fitness.getConfigClient(it, GoogleSignIn.getAccountForExtension(it, fitnessOptions))
-                .disableFit()
-                .addOnSuccessListener {
-                    Log.d(LOG_TAG, "Disabled Google Fit")
-                    result?.success(null)
-                }
-                .addOnFailureListener { e ->
-                    Log.d(LOG_TAG, "There was an error disabling Google Fit", e)
-                    result?.error(Exception(e))
-                }
+        val fitnessOptions = FitnessOptions.builder()
+            .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_WORKOUT_EXERCISE, FitnessOptions.ACCESS_READ)
+            .build()
+
+        val account = GoogleSignIn.getAccountForExtension(activity!!, fitnessOptions)
+        if (GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+            activity?.let {
+                Fitness.getConfigClient(it, GoogleSignIn.getAccountForExtension(it, fitnessOptions))
+                    .disableFit()
+                    .addOnSuccessListener {
+                        Log.d(LOG_TAG, "Disabled Google Fit")
+                        result?.success(null)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d(LOG_TAG, "There was an error disabling Google Fit", e)
+                        result?.error(Exception(e))
+                    }
+                return
+            }
+            Log.e(LOG_TAG, "Activity was not properly attached")
             return
         }
-        Log.e(LOG_TAG, "Activity was not properly attached")
+        result?.success(null)
     }
 
     override fun getHealthConnectData(result: Pigeon.Result<Pigeon.HealthConnectData>?) {
