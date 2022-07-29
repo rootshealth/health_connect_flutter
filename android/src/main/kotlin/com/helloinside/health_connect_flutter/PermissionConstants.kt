@@ -8,6 +8,7 @@ class Permission {
 
     object Type {
         const val ACTIVITY_RECOGNITION_PERMISSION = Manifest.permission.ACTIVITY_RECOGNITION
+        const val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
     }
 
     object Code {

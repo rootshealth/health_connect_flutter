@@ -6,7 +6,28 @@ import 'package:flutter/services.dart';
 import 'package:health_connect_flutter/health_connect_plugin.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+class HealthConnectFlutterApiImpl implements HealthConnectFlutterApi {
+  HealthConnectFlutterApiImpl() {
+    HealthConnectFlutterApi.setup(this);
+  }
+
+  @override
+  void onWorkoutDataUpdated(HealthConnectWorkoutData healthConnectWorkoutData) {
+    final info = '''HealthConnectWorkoutData
+    Uuid: ${healthConnectWorkoutData.uuid}
+    Identifier: ${healthConnectWorkoutData.identifier}
+    Name: ${healthConnectWorkoutData.name}
+    Description: ${healthConnectWorkoutData.description}
+    Activity: ${healthConnectWorkoutData.activity}
+    StartTimestamp: ${healthConnectWorkoutData.startTimestamp}
+    EndTimestamp: ${healthConnectWorkoutData.endTimestamp}''';
+    print(info);
+  }
+}
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  HealthConnectFlutterApiImpl();
   runApp(const MyApp());
 }
 
@@ -18,12 +39,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _healthConnectPlugin = HealthConnectPlugin();
+  final _healthConnectHostApi = HealthConnectHostApi();
 
   String? _packageName;
   PermissionResult? _activityRecognitionPermissionResult;
   PermissionResult? _oAuthPermissionResult;
   HealthConnectData? _healthConnectData;
+  List<HealthConnectWorkoutData?>? _healthConnectWorkoutsData;
 
   @override
   void initState() {
@@ -41,6 +63,7 @@ class _MyAppState extends State<MyApp> {
     try {
       packageName = (await PackageInfo.fromPlatform()).packageName;
       //hasPermission = await _healthConnectPlugin.hasPermission();
+      _healthConnectHostApi.subscribeToHealthConnectWorkoutsData();
     } on PlatformException {
       if (kDebugMode) {
         print("Failed to resolve platform method!");
@@ -91,7 +114,7 @@ class _MyAppState extends State<MyApp> {
                   style: buttonStyle,
                   onPressed: () async {
                     final permissionResult =
-                        await _healthConnectPlugin.requestActivityRecognitionPermission();
+                        await _healthConnectHostApi.requestActivityRecognitionPermission();
                     setState(() {
                       _activityRecognitionPermissionResult = permissionResult;
                     });
@@ -100,7 +123,7 @@ class _MyAppState extends State<MyApp> {
               TextButton(
                   style: buttonStyle,
                   onPressed: () async {
-                    final permissionResult = await _healthConnectPlugin.requestOAuthPermission();
+                    final permissionResult = await _healthConnectHostApi.requestOAuthPermission();
                     setState(() {
                       _oAuthPermissionResult = permissionResult;
                     });
@@ -108,11 +131,11 @@ class _MyAppState extends State<MyApp> {
                   child: const Text("Request Google Fit OAuth permission")),
               TextButton(
                   style: buttonStyle,
-                  onPressed: () async => await _healthConnectPlugin.openSettings(),
+                  onPressed: () async => await _healthConnectHostApi.openSettings(),
                   child: const Text("Open settings")),
               TextButton(
                   style: buttonStyle,
-                  onPressed: () async => await _healthConnectPlugin.disconnect(),
+                  onPressed: () async => await _healthConnectHostApi.disconnect(),
                   child: const Text("Disconnect")),
               const Padding(
                 padding: EdgeInsets.only(top: 30),
@@ -121,14 +144,25 @@ class _MyAppState extends State<MyApp> {
               TextButton(
                   style: buttonStyle,
                   onPressed: () async {
-                    final healthConnectData = await _healthConnectPlugin.getHealthConnectData();
+                    final healthConnectData = await _healthConnectHostApi.getHealthConnectData();
                     setState(() {
                       _healthConnectData = healthConnectData;
                     });
                   },
                   child: const Text("Request Health Data")),
+              TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    final healthConnectWorkoutsData =
+                        await _healthConnectHostApi.getHealthConnectWorkoutsData();
+                    setState(() {
+                      _healthConnectWorkoutsData = healthConnectWorkoutsData;
+                    });
+                    //final a = _healthConnectPlugin.testStream();
+                  },
+                  child: const Text("Request Workout Data")),
               Text("Height: ${_healthConnectData?.height.toString()}"),
-              Text("Weight: ${_healthConnectData?.weight.toString()}")
+              Text("Weight: ${_healthConnectData?.weight.toString()}"),
             ],
           ),
         ),

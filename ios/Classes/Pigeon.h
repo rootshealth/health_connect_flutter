@@ -39,16 +39,28 @@ typedef NS_ENUM(NSUInteger, PermissionType) {
 @end
 
 @interface HealthConnectWorkoutData : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithData:(NSArray<NSString *> *)data;
-@property(nonatomic, strong) NSArray<NSString *> * data;
++ (instancetype)makeWithUuid:(nullable NSString *)uuid
+    identifier:(nullable NSString *)identifier
+    name:(nullable NSString *)name
+    description:(nullable NSString *)description
+    activity:(nullable NSString *)activity
+    startTimestamp:(nullable NSNumber *)startTimestamp
+    endTimestamp:(nullable NSNumber *)endTimestamp
+    duration:(nullable NSNumber *)duration;
+@property(nonatomic, copy, nullable) NSString * uuid;
+@property(nonatomic, copy, nullable) NSString * identifier;
+@property(nonatomic, copy, nullable) NSString * name;
+@property(nonatomic, copy, nullable) NSString * description;
+@property(nonatomic, copy, nullable) NSString * activity;
+@property(nonatomic, strong, nullable) NSNumber * startTimestamp;
+@property(nonatomic, strong, nullable) NSNumber * endTimestamp;
+@property(nonatomic, strong, nullable) NSNumber * duration;
 @end
 
-/// The codec used by HealthConnectPlugin.
-NSObject<FlutterMessageCodec> *HealthConnectPluginGetCodec(void);
+/// The codec used by HealthConnectHostApi.
+NSObject<FlutterMessageCodec> *HealthConnectHostApiGetCodec(void);
 
-@protocol HealthConnectPlugin
+@protocol HealthConnectHostApi
 - (void)requestActivityRecognitionPermissionWithCompletion:(void(^)(PermissionResult *_Nullable, FlutterError *_Nullable))completion;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)hasActivityRecognitionPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;
@@ -58,9 +70,17 @@ NSObject<FlutterMessageCodec> *HealthConnectPluginGetCodec(void);
 - (void)openSettingsWithError:(FlutterError *_Nullable *_Nonnull)error;
 - (void)disconnectWithCompletion:(void(^)(FlutterError *_Nullable))completion;
 - (void)getHealthConnectDataWithCompletion:(void(^)(HealthConnectData *_Nullable, FlutterError *_Nullable))completion;
-- (void)getHealthConnectWorkoutDataWithCompletion:(void(^)(HealthConnectWorkoutData *_Nullable, FlutterError *_Nullable))completion;
+- (void)getHealthConnectWorkoutsDataWithCompletion:(void(^)(NSArray<HealthConnectWorkoutData *> *_Nullable, FlutterError *_Nullable))completion;
+- (void)subscribeToHealthConnectWorkoutsDataWithError:(FlutterError *_Nullable *_Nonnull)error;
 @end
 
-extern void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<HealthConnectPlugin> *_Nullable api);
+extern void HealthConnectHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<HealthConnectHostApi> *_Nullable api);
 
+/// The codec used by HealthConnectFlutterApi.
+NSObject<FlutterMessageCodec> *HealthConnectFlutterApiGetCodec(void);
+
+@interface HealthConnectFlutterApi : NSObject
+- (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger;
+- (void)onWorkoutDataUpdatedHealthConnectWorkoutData:(HealthConnectWorkoutData *)healthConnectWorkoutData completion:(void(^)(NSError *_Nullable))completion;
+@end
 NS_ASSUME_NONNULL_END

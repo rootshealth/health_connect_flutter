@@ -148,38 +148,138 @@ public class Pigeon {
 
   /** Generated class from Pigeon that represents data sent in messages. */
   public static class HealthConnectWorkoutData {
-    private @NonNull List<String> data;
-    public @NonNull List<String> getData() { return data; }
-    public void setData(@NonNull List<String> setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"data\" is null.");
-      }
-      this.data = setterArg;
+    private @Nullable String uuid;
+    public @Nullable String getUuid() { return uuid; }
+    public void setUuid(@Nullable String setterArg) {
+      this.uuid = setterArg;
     }
 
-    /** Constructor is private to enforce null safety; use Builder. */
-    private HealthConnectWorkoutData() {}
+    private @Nullable String identifier;
+    public @Nullable String getIdentifier() { return identifier; }
+    public void setIdentifier(@Nullable String setterArg) {
+      this.identifier = setterArg;
+    }
+
+    private @Nullable String name;
+    public @Nullable String getName() { return name; }
+    public void setName(@Nullable String setterArg) {
+      this.name = setterArg;
+    }
+
+    private @Nullable String description;
+    public @Nullable String getDescription() { return description; }
+    public void setDescription(@Nullable String setterArg) {
+      this.description = setterArg;
+    }
+
+    private @Nullable String activity;
+    public @Nullable String getActivity() { return activity; }
+    public void setActivity(@Nullable String setterArg) {
+      this.activity = setterArg;
+    }
+
+    private @Nullable Long startTimestamp;
+    public @Nullable Long getStartTimestamp() { return startTimestamp; }
+    public void setStartTimestamp(@Nullable Long setterArg) {
+      this.startTimestamp = setterArg;
+    }
+
+    private @Nullable Long endTimestamp;
+    public @Nullable Long getEndTimestamp() { return endTimestamp; }
+    public void setEndTimestamp(@Nullable Long setterArg) {
+      this.endTimestamp = setterArg;
+    }
+
+    private @Nullable Long duration;
+    public @Nullable Long getDuration() { return duration; }
+    public void setDuration(@Nullable Long setterArg) {
+      this.duration = setterArg;
+    }
+
     public static final class Builder {
-      private @Nullable List<String> data;
-      public @NonNull Builder setData(@NonNull List<String> setterArg) {
-        this.data = setterArg;
+      private @Nullable String uuid;
+      public @NonNull Builder setUuid(@Nullable String setterArg) {
+        this.uuid = setterArg;
+        return this;
+      }
+      private @Nullable String identifier;
+      public @NonNull Builder setIdentifier(@Nullable String setterArg) {
+        this.identifier = setterArg;
+        return this;
+      }
+      private @Nullable String name;
+      public @NonNull Builder setName(@Nullable String setterArg) {
+        this.name = setterArg;
+        return this;
+      }
+      private @Nullable String description;
+      public @NonNull Builder setDescription(@Nullable String setterArg) {
+        this.description = setterArg;
+        return this;
+      }
+      private @Nullable String activity;
+      public @NonNull Builder setActivity(@Nullable String setterArg) {
+        this.activity = setterArg;
+        return this;
+      }
+      private @Nullable Long startTimestamp;
+      public @NonNull Builder setStartTimestamp(@Nullable Long setterArg) {
+        this.startTimestamp = setterArg;
+        return this;
+      }
+      private @Nullable Long endTimestamp;
+      public @NonNull Builder setEndTimestamp(@Nullable Long setterArg) {
+        this.endTimestamp = setterArg;
+        return this;
+      }
+      private @Nullable Long duration;
+      public @NonNull Builder setDuration(@Nullable Long setterArg) {
+        this.duration = setterArg;
         return this;
       }
       public @NonNull HealthConnectWorkoutData build() {
         HealthConnectWorkoutData pigeonReturn = new HealthConnectWorkoutData();
-        pigeonReturn.setData(data);
+        pigeonReturn.setUuid(uuid);
+        pigeonReturn.setIdentifier(identifier);
+        pigeonReturn.setName(name);
+        pigeonReturn.setDescription(description);
+        pigeonReturn.setActivity(activity);
+        pigeonReturn.setStartTimestamp(startTimestamp);
+        pigeonReturn.setEndTimestamp(endTimestamp);
+        pigeonReturn.setDuration(duration);
         return pigeonReturn;
       }
     }
     @NonNull Map<String, Object> toMap() {
       Map<String, Object> toMapResult = new HashMap<>();
-      toMapResult.put("data", data);
+      toMapResult.put("uuid", uuid);
+      toMapResult.put("identifier", identifier);
+      toMapResult.put("name", name);
+      toMapResult.put("description", description);
+      toMapResult.put("activity", activity);
+      toMapResult.put("startTimestamp", startTimestamp);
+      toMapResult.put("endTimestamp", endTimestamp);
+      toMapResult.put("duration", duration);
       return toMapResult;
     }
     static @NonNull HealthConnectWorkoutData fromMap(@NonNull Map<String, Object> map) {
       HealthConnectWorkoutData pigeonResult = new HealthConnectWorkoutData();
-      Object data = map.get("data");
-      pigeonResult.setData((List<String>)data);
+      Object uuid = map.get("uuid");
+      pigeonResult.setUuid((String)uuid);
+      Object identifier = map.get("identifier");
+      pigeonResult.setIdentifier((String)identifier);
+      Object name = map.get("name");
+      pigeonResult.setName((String)name);
+      Object description = map.get("description");
+      pigeonResult.setDescription((String)description);
+      Object activity = map.get("activity");
+      pigeonResult.setActivity((String)activity);
+      Object startTimestamp = map.get("startTimestamp");
+      pigeonResult.setStartTimestamp((startTimestamp == null) ? null : ((startTimestamp instanceof Integer) ? (Integer)startTimestamp : (Long)startTimestamp));
+      Object endTimestamp = map.get("endTimestamp");
+      pigeonResult.setEndTimestamp((endTimestamp == null) ? null : ((endTimestamp instanceof Integer) ? (Integer)endTimestamp : (Long)endTimestamp));
+      Object duration = map.get("duration");
+      pigeonResult.setDuration((duration == null) ? null : ((duration instanceof Integer) ? (Integer)duration : (Long)duration));
       return pigeonResult;
     }
   }
@@ -188,9 +288,9 @@ public class Pigeon {
     void success(T result);
     void error(Throwable error);
   }
-  private static class HealthConnectPluginCodec extends StandardMessageCodec {
-    public static final HealthConnectPluginCodec INSTANCE = new HealthConnectPluginCodec();
-    private HealthConnectPluginCodec() {}
+  private static class HealthConnectHostApiCodec extends StandardMessageCodec {
+    public static final HealthConnectHostApiCodec INSTANCE = new HealthConnectHostApiCodec();
+    private HealthConnectHostApiCodec() {}
     @Override
     protected Object readValueOfType(byte type, ByteBuffer buffer) {
       switch (type) {
@@ -229,7 +329,7 @@ public class Pigeon {
   }
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
-  public interface HealthConnectPlugin {
+  public interface HealthConnectHostApi {
     void requestActivityRecognitionPermission(Result<PermissionResult> result);
     @NonNull Boolean hasActivityRecognitionPermission();
     void requestOAuthPermission(Result<PermissionResult> result);
@@ -237,18 +337,19 @@ public class Pigeon {
     void openSettings();
     void disconnect(Result<Void> result);
     void getHealthConnectData(Result<HealthConnectData> result);
-    void getHealthConnectWorkoutData(Result<HealthConnectWorkoutData> result);
+    void getHealthConnectWorkoutsData(Result<List<HealthConnectWorkoutData>> result);
+    void subscribeToHealthConnectWorkoutsData();
 
-    /** The codec used by HealthConnectPlugin. */
+    /** The codec used by HealthConnectHostApi. */
     static MessageCodec<Object> getCodec() {
-      return HealthConnectPluginCodec.INSTANCE;
+      return HealthConnectHostApiCodec.INSTANCE;
     }
 
-    /** Sets up an instance of `HealthConnectPlugin` to handle messages through the `binaryMessenger`. */
-    static void setup(BinaryMessenger binaryMessenger, HealthConnectPlugin api) {
+    /** Sets up an instance of `HealthConnectHostApi` to handle messages through the `binaryMessenger`. */
+    static void setup(BinaryMessenger binaryMessenger, HealthConnectHostApi api) {
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.requestActivityRecognitionPermission", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.requestActivityRecognitionPermission", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -277,7 +378,7 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.hasActivityRecognitionPermission", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.hasActivityRecognitionPermission", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -296,7 +397,7 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.requestOAuthPermission", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.requestOAuthPermission", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -325,7 +426,7 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.hasOAuthPermission", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.hasOAuthPermission", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -344,7 +445,7 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.openSettings", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.openSettings", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -363,7 +464,7 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.disconnect", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.disconnect", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -392,7 +493,7 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectData", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectData", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -421,13 +522,13 @@ public class Pigeon {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectWorkoutData", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectWorkoutsData", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              Result<HealthConnectWorkoutData> resultCallback = new Result<HealthConnectWorkoutData>() {
-                public void success(HealthConnectWorkoutData result) {
+              Result<List<HealthConnectWorkoutData>> resultCallback = new Result<List<HealthConnectWorkoutData>>() {
+                public void success(List<HealthConnectWorkoutData> result) {
                   wrapped.put("result", result);
                   reply.reply(wrapped);
                 }
@@ -437,7 +538,7 @@ public class Pigeon {
                 }
               };
 
-              api.getHealthConnectWorkoutData(resultCallback);
+              api.getHealthConnectWorkoutsData(resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
@@ -448,6 +549,72 @@ public class Pigeon {
           channel.setMessageHandler(null);
         }
       }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.subscribeToHealthConnectWorkoutsData", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              api.subscribeToHealthConnectWorkoutsData();
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+    }
+  }
+  private static class HealthConnectFlutterApiCodec extends StandardMessageCodec {
+    public static final HealthConnectFlutterApiCodec INSTANCE = new HealthConnectFlutterApiCodec();
+    private HealthConnectFlutterApiCodec() {}
+    @Override
+    protected Object readValueOfType(byte type, ByteBuffer buffer) {
+      switch (type) {
+        case (byte)128:         
+          return HealthConnectWorkoutData.fromMap((Map<String, Object>) readValue(buffer));
+        
+        default:        
+          return super.readValueOfType(type, buffer);
+        
+      }
+    }
+    @Override
+    protected void writeValue(ByteArrayOutputStream stream, Object value)     {
+      if (value instanceof HealthConnectWorkoutData) {
+        stream.write(128);
+        writeValue(stream, ((HealthConnectWorkoutData) value).toMap());
+      } else 
+{
+        super.writeValue(stream, value);
+      }
+    }
+  }
+
+  /** Generated class from Pigeon that represents Flutter messages that can be called from Java.*/
+  public static class HealthConnectFlutterApi {
+    private final BinaryMessenger binaryMessenger;
+    public HealthConnectFlutterApi(BinaryMessenger argBinaryMessenger){
+      this.binaryMessenger = argBinaryMessenger;
+    }
+    public interface Reply<T> {
+      void reply(T reply);
+    }
+    static MessageCodec<Object> getCodec() {
+      return HealthConnectFlutterApiCodec.INSTANCE;
+    }
+
+    public void onWorkoutDataUpdated(@NonNull HealthConnectWorkoutData healthConnectWorkoutDataArg, Reply<Void> callback) {
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectFlutterApi.onWorkoutDataUpdated", getCodec());
+      channel.send(new ArrayList<Object>(Arrays.asList(healthConnectWorkoutDataArg)), channelReply -> {
+        callback.reply(null);
+      });
     }
   }
   private static Map<String, Object> wrapError(Throwable exception) {

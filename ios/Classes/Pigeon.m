@@ -94,28 +94,55 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 @end
 
 @implementation HealthConnectWorkoutData
-+ (instancetype)makeWithData:(NSArray<NSString *> *)data {
++ (instancetype)makeWithUuid:(nullable NSString *)uuid
+    identifier:(nullable NSString *)identifier
+    name:(nullable NSString *)name
+    description:(nullable NSString *)description
+    activity:(nullable NSString *)activity
+    startTimestamp:(nullable NSNumber *)startTimestamp
+    endTimestamp:(nullable NSNumber *)endTimestamp
+    duration:(nullable NSNumber *)duration {
   HealthConnectWorkoutData* pigeonResult = [[HealthConnectWorkoutData alloc] init];
-  pigeonResult.data = data;
+  pigeonResult.uuid = uuid;
+  pigeonResult.identifier = identifier;
+  pigeonResult.name = name;
+  pigeonResult.description = description;
+  pigeonResult.activity = activity;
+  pigeonResult.startTimestamp = startTimestamp;
+  pigeonResult.endTimestamp = endTimestamp;
+  pigeonResult.duration = duration;
   return pigeonResult;
 }
 + (HealthConnectWorkoutData *)fromMap:(NSDictionary *)dict {
   HealthConnectWorkoutData *pigeonResult = [[HealthConnectWorkoutData alloc] init];
-  pigeonResult.data = GetNullableObject(dict, @"data");
-  NSAssert(pigeonResult.data != nil, @"");
+  pigeonResult.uuid = GetNullableObject(dict, @"uuid");
+  pigeonResult.identifier = GetNullableObject(dict, @"identifier");
+  pigeonResult.name = GetNullableObject(dict, @"name");
+  pigeonResult.description = GetNullableObject(dict, @"description");
+  pigeonResult.activity = GetNullableObject(dict, @"activity");
+  pigeonResult.startTimestamp = GetNullableObject(dict, @"startTimestamp");
+  pigeonResult.endTimestamp = GetNullableObject(dict, @"endTimestamp");
+  pigeonResult.duration = GetNullableObject(dict, @"duration");
   return pigeonResult;
 }
 + (nullable HealthConnectWorkoutData *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [HealthConnectWorkoutData fromMap:dict] : nil; }
 - (NSDictionary *)toMap {
   return @{
-    @"data" : (self.data ?: [NSNull null]),
+    @"uuid" : (self.uuid ?: [NSNull null]),
+    @"identifier" : (self.identifier ?: [NSNull null]),
+    @"name" : (self.name ?: [NSNull null]),
+    @"description" : (self.description ?: [NSNull null]),
+    @"activity" : (self.activity ?: [NSNull null]),
+    @"startTimestamp" : (self.startTimestamp ?: [NSNull null]),
+    @"endTimestamp" : (self.endTimestamp ?: [NSNull null]),
+    @"duration" : (self.duration ?: [NSNull null]),
   };
 }
 @end
 
-@interface HealthConnectPluginCodecReader : FlutterStandardReader
+@interface HealthConnectHostApiCodecReader : FlutterStandardReader
 @end
-@implementation HealthConnectPluginCodecReader
+@implementation HealthConnectHostApiCodecReader
 - (nullable id)readValueOfType:(UInt8)type 
 {
   switch (type) {
@@ -135,9 +162,9 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 @end
 
-@interface HealthConnectPluginCodecWriter : FlutterStandardWriter
+@interface HealthConnectHostApiCodecWriter : FlutterStandardWriter
 @end
-@implementation HealthConnectPluginCodecWriter
+@implementation HealthConnectHostApiCodecWriter
 - (void)writeValue:(id)value 
 {
   if ([value isKindOfClass:[HealthConnectData class]]) {
@@ -158,37 +185,37 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 @end
 
-@interface HealthConnectPluginCodecReaderWriter : FlutterStandardReaderWriter
+@interface HealthConnectHostApiCodecReaderWriter : FlutterStandardReaderWriter
 @end
-@implementation HealthConnectPluginCodecReaderWriter
+@implementation HealthConnectHostApiCodecReaderWriter
 - (FlutterStandardWriter *)writerWithData:(NSMutableData *)data {
-  return [[HealthConnectPluginCodecWriter alloc] initWithData:data];
+  return [[HealthConnectHostApiCodecWriter alloc] initWithData:data];
 }
 - (FlutterStandardReader *)readerWithData:(NSData *)data {
-  return [[HealthConnectPluginCodecReader alloc] initWithData:data];
+  return [[HealthConnectHostApiCodecReader alloc] initWithData:data];
 }
 @end
 
-NSObject<FlutterMessageCodec> *HealthConnectPluginGetCodec() {
+NSObject<FlutterMessageCodec> *HealthConnectHostApiGetCodec() {
   static dispatch_once_t sPred = 0;
   static FlutterStandardMessageCodec *sSharedObject = nil;
   dispatch_once(&sPred, ^{
-    HealthConnectPluginCodecReaderWriter *readerWriter = [[HealthConnectPluginCodecReaderWriter alloc] init];
+    HealthConnectHostApiCodecReaderWriter *readerWriter = [[HealthConnectHostApiCodecReaderWriter alloc] init];
     sSharedObject = [FlutterStandardMessageCodec codecWithReaderWriter:readerWriter];
   });
   return sSharedObject;
 }
 
 
-void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<HealthConnectPlugin> *api) {
+void HealthConnectHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<HealthConnectHostApi> *api) {
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.requestActivityRecognitionPermission"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.requestActivityRecognitionPermission"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(requestActivityRecognitionPermissionWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(requestActivityRecognitionPermissionWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(requestActivityRecognitionPermissionWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(requestActivityRecognitionPermissionWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         [api requestActivityRecognitionPermissionWithCompletion:^(PermissionResult *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
@@ -202,11 +229,11 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.hasActivityRecognitionPermission"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.hasActivityRecognitionPermission"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(hasActivityRecognitionPermissionWithError:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(hasActivityRecognitionPermissionWithError:)", api);
+      NSCAssert([api respondsToSelector:@selector(hasActivityRecognitionPermissionWithError:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(hasActivityRecognitionPermissionWithError:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         FlutterError *error;
         NSNumber *output = [api hasActivityRecognitionPermissionWithError:&error];
@@ -220,11 +247,11 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.requestOAuthPermission"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.requestOAuthPermission"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(requestOAuthPermissionWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(requestOAuthPermissionWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(requestOAuthPermissionWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(requestOAuthPermissionWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         [api requestOAuthPermissionWithCompletion:^(PermissionResult *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
@@ -238,11 +265,11 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.hasOAuthPermission"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.hasOAuthPermission"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(hasOAuthPermissionWithError:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(hasOAuthPermissionWithError:)", api);
+      NSCAssert([api respondsToSelector:@selector(hasOAuthPermissionWithError:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(hasOAuthPermissionWithError:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         FlutterError *error;
         NSNumber *output = [api hasOAuthPermissionWithError:&error];
@@ -256,11 +283,11 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.openSettings"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.openSettings"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(openSettingsWithError:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(openSettingsWithError:)", api);
+      NSCAssert([api respondsToSelector:@selector(openSettingsWithError:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(openSettingsWithError:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         FlutterError *error;
         [api openSettingsWithError:&error];
@@ -274,11 +301,11 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.disconnect"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.disconnect"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(disconnectWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(disconnectWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(disconnectWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(disconnectWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         [api disconnectWithCompletion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
@@ -292,11 +319,11 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectData"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectData"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(getHealthConnectDataWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(getHealthConnectDataWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(getHealthConnectDataWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(getHealthConnectDataWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         [api getHealthConnectDataWithCompletion:^(HealthConnectData *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
@@ -310,13 +337,13 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectWorkoutData"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectWorkoutsData"
         binaryMessenger:binaryMessenger
-        codec:HealthConnectPluginGetCodec()        ];
+        codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(getHealthConnectWorkoutDataWithCompletion:)], @"HealthConnectPlugin api (%@) doesn't respond to @selector(getHealthConnectWorkoutDataWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(getHealthConnectWorkoutsDataWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(getHealthConnectWorkoutsDataWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        [api getHealthConnectWorkoutDataWithCompletion:^(HealthConnectWorkoutData *_Nullable output, FlutterError *_Nullable error) {
+        [api getHealthConnectWorkoutsDataWithCompletion:^(NSArray<HealthConnectWorkoutData *> *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -325,4 +352,99 @@ void HealthConnectPluginSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObje
       [channel setMessageHandler:nil];
     }
   }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.subscribeToHealthConnectWorkoutsData"
+        binaryMessenger:binaryMessenger
+        codec:HealthConnectHostApiGetCodec()        ];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(subscribeToHealthConnectWorkoutsDataWithError:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(subscribeToHealthConnectWorkoutsDataWithError:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        FlutterError *error;
+        [api subscribeToHealthConnectWorkoutsDataWithError:&error];
+        callback(wrapResult(nil, error));
+      }];
+    }
+    else {
+      [channel setMessageHandler:nil];
+    }
+  }
 }
+@interface HealthConnectFlutterApiCodecReader : FlutterStandardReader
+@end
+@implementation HealthConnectFlutterApiCodecReader
+- (nullable id)readValueOfType:(UInt8)type 
+{
+  switch (type) {
+    case 128:     
+      return [HealthConnectWorkoutData fromMap:[self readValue]];
+    
+    default:    
+      return [super readValueOfType:type];
+    
+  }
+}
+@end
+
+@interface HealthConnectFlutterApiCodecWriter : FlutterStandardWriter
+@end
+@implementation HealthConnectFlutterApiCodecWriter
+- (void)writeValue:(id)value 
+{
+  if ([value isKindOfClass:[HealthConnectWorkoutData class]]) {
+    [self writeByte:128];
+    [self writeValue:[value toMap]];
+  } else 
+{
+    [super writeValue:value];
+  }
+}
+@end
+
+@interface HealthConnectFlutterApiCodecReaderWriter : FlutterStandardReaderWriter
+@end
+@implementation HealthConnectFlutterApiCodecReaderWriter
+- (FlutterStandardWriter *)writerWithData:(NSMutableData *)data {
+  return [[HealthConnectFlutterApiCodecWriter alloc] initWithData:data];
+}
+- (FlutterStandardReader *)readerWithData:(NSData *)data {
+  return [[HealthConnectFlutterApiCodecReader alloc] initWithData:data];
+}
+@end
+
+NSObject<FlutterMessageCodec> *HealthConnectFlutterApiGetCodec() {
+  static dispatch_once_t sPred = 0;
+  static FlutterStandardMessageCodec *sSharedObject = nil;
+  dispatch_once(&sPred, ^{
+    HealthConnectFlutterApiCodecReaderWriter *readerWriter = [[HealthConnectFlutterApiCodecReaderWriter alloc] init];
+    sSharedObject = [FlutterStandardMessageCodec codecWithReaderWriter:readerWriter];
+  });
+  return sSharedObject;
+}
+
+
+@interface HealthConnectFlutterApi ()
+@property (nonatomic, strong) NSObject<FlutterBinaryMessenger> *binaryMessenger;
+@end
+
+@implementation HealthConnectFlutterApi
+
+- (instancetype)initWithBinaryMessenger:(NSObject<FlutterBinaryMessenger> *)binaryMessenger {
+  self = [super init];
+  if (self) {
+    _binaryMessenger = binaryMessenger;
+  }
+  return self;
+}
+- (void)onWorkoutDataUpdatedHealthConnectWorkoutData:(HealthConnectWorkoutData *)arg_healthConnectWorkoutData completion:(void(^)(NSError *_Nullable))completion {
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:@"dev.flutter.pigeon.HealthConnectFlutterApi.onWorkoutDataUpdated"
+      binaryMessenger:self.binaryMessenger
+      codec:HealthConnectFlutterApiGetCodec()];
+  [channel sendMessage:@[arg_healthConnectWorkoutData ?: [NSNull null]] reply:^(id reply) {
+    completion(nil);
+  }];
+}
+@end

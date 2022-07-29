@@ -22,16 +22,32 @@ class HealthConnectData {
   });
 }
 
+/// startTimestamp, endTimestamp end duration are represented in seconds
 class HealthConnectWorkoutData {
-  final List<String?> data;
+  final String? uuid;
+  final String? identifier;
+  final String? name;
+  final String? description;
+  final String? activity;
+  final int? startTimestamp;
+  final int? endTimestamp;
+  final int? duration;
 
   HealthConnectWorkoutData({
-    required this.data,
+    required this.uuid,
+    required this.identifier,
+    required this.name,
+    required this.description,
+    required this.activity,
+    required this.startTimestamp,
+    required this.endTimestamp,
+    required this.duration,
   });
 }
 
+/// flutter call native
 @HostApi()
-abstract class HealthConnectPlugin {
+abstract class HealthConnectHostApi {
   @async
   PermissionResult requestActivityRecognitionPermission();
 
@@ -51,5 +67,13 @@ abstract class HealthConnectPlugin {
   HealthConnectData getHealthConnectData();
 
   @async
-  HealthConnectWorkoutData getHealthConnectWorkoutData();
+  List<HealthConnectWorkoutData> getHealthConnectWorkoutsData();
+
+  void subscribeToHealthConnectWorkoutsData();
+}
+
+/// native call flutter
+@FlutterApi()
+abstract class HealthConnectFlutterApi {
+  void onWorkoutDataUpdated(HealthConnectWorkoutData healthConnectWorkoutData);
 }

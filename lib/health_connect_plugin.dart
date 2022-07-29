@@ -71,27 +71,55 @@ class HealthConnectData {
 
 class HealthConnectWorkoutData {
   HealthConnectWorkoutData({
-    required this.data,
+    this.uuid,
+    this.identifier,
+    this.name,
+    this.description,
+    this.activity,
+    this.startTimestamp,
+    this.endTimestamp,
+    this.duration,
   });
 
-  List<String?> data;
+  String? uuid;
+  String? identifier;
+  String? name;
+  String? description;
+  String? activity;
+  int? startTimestamp;
+  int? endTimestamp;
+  int? duration;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
-    pigeonMap['data'] = data;
+    pigeonMap['uuid'] = uuid;
+    pigeonMap['identifier'] = identifier;
+    pigeonMap['name'] = name;
+    pigeonMap['description'] = description;
+    pigeonMap['activity'] = activity;
+    pigeonMap['startTimestamp'] = startTimestamp;
+    pigeonMap['endTimestamp'] = endTimestamp;
+    pigeonMap['duration'] = duration;
     return pigeonMap;
   }
 
   static HealthConnectWorkoutData decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return HealthConnectWorkoutData(
-      data: (pigeonMap['data'] as List<Object?>?)!.cast<String?>(),
+      uuid: pigeonMap['uuid'] as String?,
+      identifier: pigeonMap['identifier'] as String?,
+      name: pigeonMap['name'] as String?,
+      description: pigeonMap['description'] as String?,
+      activity: pigeonMap['activity'] as String?,
+      startTimestamp: pigeonMap['startTimestamp'] as int?,
+      endTimestamp: pigeonMap['endTimestamp'] as int?,
+      duration: pigeonMap['duration'] as int?,
     );
   }
 }
 
-class _HealthConnectPluginCodec extends StandardMessageCodec {
-  const _HealthConnectPluginCodec();
+class _HealthConnectHostApiCodec extends StandardMessageCodec {
+  const _HealthConnectHostApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
     if (value is HealthConnectData) {
@@ -129,19 +157,19 @@ class _HealthConnectPluginCodec extends StandardMessageCodec {
   }
 }
 
-class HealthConnectPlugin {
-  /// Constructor for [HealthConnectPlugin].  The [binaryMessenger] named argument is
+class HealthConnectHostApi {
+  /// Constructor for [HealthConnectHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  HealthConnectPlugin({BinaryMessenger? binaryMessenger}) : _binaryMessenger = binaryMessenger;
+  HealthConnectHostApi({BinaryMessenger? binaryMessenger}) : _binaryMessenger = binaryMessenger;
 
   final BinaryMessenger? _binaryMessenger;
 
-  static const MessageCodec<Object?> codec = _HealthConnectPluginCodec();
+  static const MessageCodec<Object?> codec = _HealthConnectHostApiCodec();
 
   Future<PermissionResult> requestActivityRecognitionPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.requestActivityRecognitionPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.requestActivityRecognitionPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -168,7 +196,7 @@ class HealthConnectPlugin {
 
   Future<bool> hasActivityRecognitionPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.hasActivityRecognitionPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.hasActivityRecognitionPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -195,7 +223,7 @@ class HealthConnectPlugin {
 
   Future<PermissionResult> requestOAuthPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.requestOAuthPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.requestOAuthPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -222,7 +250,7 @@ class HealthConnectPlugin {
 
   Future<bool> hasOAuthPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.hasOAuthPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.hasOAuthPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -249,7 +277,7 @@ class HealthConnectPlugin {
 
   Future<void> openSettings() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.openSettings', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.openSettings', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -271,7 +299,7 @@ class HealthConnectPlugin {
 
   Future<void> disconnect() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.disconnect', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.disconnect', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -293,7 +321,7 @@ class HealthConnectPlugin {
 
   Future<HealthConnectData> getHealthConnectData() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectData', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectData', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -318,9 +346,9 @@ class HealthConnectPlugin {
     }
   }
 
-  Future<HealthConnectWorkoutData> getHealthConnectWorkoutData() async {
+  Future<List<HealthConnectWorkoutData?>> getHealthConnectWorkoutsData() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectPlugin.getHealthConnectWorkoutData', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectWorkoutsData', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -341,7 +369,77 @@ class HealthConnectPlugin {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (replyMap['result'] as HealthConnectWorkoutData?)!;
+      return (replyMap['result'] as List<Object?>?)!.cast<HealthConnectWorkoutData?>();
+    }
+  }
+
+  Future<void> subscribeToHealthConnectWorkoutsData() async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.HealthConnectHostApi.subscribeToHealthConnectWorkoutsData', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      return;
+    }
+  }
+}
+
+class _HealthConnectFlutterApiCodec extends StandardMessageCodec {
+  const _HealthConnectFlutterApiCodec();
+  @override
+  void writeValue(WriteBuffer buffer, Object? value) {
+    if (value is HealthConnectWorkoutData) {
+      buffer.putUint8(128);
+      writeValue(buffer, value.encode());
+    } else 
+{
+      super.writeValue(buffer, value);
+    }
+  }
+  @override
+  Object? readValueOfType(int type, ReadBuffer buffer) {
+    switch (type) {
+      case 128:       
+        return HealthConnectWorkoutData.decode(readValue(buffer)!);
+      
+      default:      
+        return super.readValueOfType(type, buffer);
+      
+    }
+  }
+}
+abstract class HealthConnectFlutterApi {
+  static const MessageCodec<Object?> codec = _HealthConnectFlutterApiCodec();
+
+  void onWorkoutDataUpdated(HealthConnectWorkoutData healthConnectWorkoutData);
+  static void setup(HealthConnectFlutterApi? api, {BinaryMessenger? binaryMessenger}) {
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.HealthConnectFlutterApi.onWorkoutDataUpdated', codec, binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null, 'Argument for dev.flutter.pigeon.HealthConnectFlutterApi.onWorkoutDataUpdated was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final HealthConnectWorkoutData? arg_healthConnectWorkoutData = (args[0] as HealthConnectWorkoutData?);
+          assert(arg_healthConnectWorkoutData != null, 'Argument for dev.flutter.pigeon.HealthConnectFlutterApi.onWorkoutDataUpdated was null, expected non-null HealthConnectWorkoutData.');
+          api.onWorkoutDataUpdated(arg_healthConnectWorkoutData!);
+          return;
+        });
+      }
     }
   }
 }
