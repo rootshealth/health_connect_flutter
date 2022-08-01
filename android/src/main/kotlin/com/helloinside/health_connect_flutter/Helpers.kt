@@ -41,11 +41,18 @@ fun Session.toHealthConnectWorkoutData(): Pigeon.HealthConnectWorkoutData {
     val startTimeInSeconds = getStartTime(TimeUnit.SECONDS)
     val endTimeTimeInSeconds = getEndTime(TimeUnit.SECONDS)
     val durationInSeconds = endTimeTimeInSeconds - startTimeInSeconds
+
+    var activityType = Pigeon.WorkoutActivityType.unknown
+    try {
+        activityType = Pigeon.WorkoutActivityType.valueOf(activity)
+    } catch (e: Exception) {
+        print("Unknown workout: $e")
+    }
     return Pigeon.HealthConnectWorkoutData.Builder()
         .setIdentifier(identifier)
         .setName(name)
         .setDescription(description)
-        .setActivity(activity)
+        .setActivityType(activityType)
         .setStartTimestamp(startTimeInSeconds)
         .setEndTimestamp(endTimeTimeInSeconds)
         .setDuration(durationInSeconds)

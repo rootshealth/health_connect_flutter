@@ -41,6 +41,11 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 + (nullable HealthConnectData *)nullableFromMap:(NSDictionary *)dict;
 - (NSDictionary *)toMap;
 @end
+@interface Predicate ()
++ (Predicate *)fromMap:(NSDictionary *)dict;
++ (nullable Predicate *)nullableFromMap:(NSDictionary *)dict;
+- (NSDictionary *)toMap;
+@end
 @interface HealthConnectWorkoutData ()
 + (HealthConnectWorkoutData *)fromMap:(NSDictionary *)dict;
 + (nullable HealthConnectWorkoutData *)nullableFromMap:(NSDictionary *)dict;
@@ -93,12 +98,37 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 @end
 
+@implementation Predicate
++ (instancetype)makeWithStartDateInMsSinceEpoch:(NSNumber *)startDateInMsSinceEpoch
+    endDateInMsSinceEpoch:(NSNumber *)endDateInMsSinceEpoch {
+  Predicate* pigeonResult = [[Predicate alloc] init];
+  pigeonResult.startDateInMsSinceEpoch = startDateInMsSinceEpoch;
+  pigeonResult.endDateInMsSinceEpoch = endDateInMsSinceEpoch;
+  return pigeonResult;
+}
++ (Predicate *)fromMap:(NSDictionary *)dict {
+  Predicate *pigeonResult = [[Predicate alloc] init];
+  pigeonResult.startDateInMsSinceEpoch = GetNullableObject(dict, @"startDateInMsSinceEpoch");
+  NSAssert(pigeonResult.startDateInMsSinceEpoch != nil, @"");
+  pigeonResult.endDateInMsSinceEpoch = GetNullableObject(dict, @"endDateInMsSinceEpoch");
+  NSAssert(pigeonResult.endDateInMsSinceEpoch != nil, @"");
+  return pigeonResult;
+}
++ (nullable Predicate *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [Predicate fromMap:dict] : nil; }
+- (NSDictionary *)toMap {
+  return @{
+    @"startDateInMsSinceEpoch" : (self.startDateInMsSinceEpoch ?: [NSNull null]),
+    @"endDateInMsSinceEpoch" : (self.endDateInMsSinceEpoch ?: [NSNull null]),
+  };
+}
+@end
+
 @implementation HealthConnectWorkoutData
 + (instancetype)makeWithUuid:(nullable NSString *)uuid
     identifier:(nullable NSString *)identifier
     name:(nullable NSString *)name
     description:(nullable NSString *)description
-    activity:(nullable NSString *)activity
+    activityType:(WorkoutActivityType)activityType
     startTimestamp:(nullable NSNumber *)startTimestamp
     endTimestamp:(nullable NSNumber *)endTimestamp
     duration:(nullable NSNumber *)duration {
@@ -107,7 +137,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.identifier = identifier;
   pigeonResult.name = name;
   pigeonResult.description = description;
-  pigeonResult.activity = activity;
+  pigeonResult.activityType = activityType;
   pigeonResult.startTimestamp = startTimestamp;
   pigeonResult.endTimestamp = endTimestamp;
   pigeonResult.duration = duration;
@@ -119,7 +149,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   pigeonResult.identifier = GetNullableObject(dict, @"identifier");
   pigeonResult.name = GetNullableObject(dict, @"name");
   pigeonResult.description = GetNullableObject(dict, @"description");
-  pigeonResult.activity = GetNullableObject(dict, @"activity");
+  pigeonResult.activityType = [GetNullableObject(dict, @"activityType") integerValue];
   pigeonResult.startTimestamp = GetNullableObject(dict, @"startTimestamp");
   pigeonResult.endTimestamp = GetNullableObject(dict, @"endTimestamp");
   pigeonResult.duration = GetNullableObject(dict, @"duration");
@@ -132,7 +162,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     @"identifier" : (self.identifier ?: [NSNull null]),
     @"name" : (self.name ?: [NSNull null]),
     @"description" : (self.description ?: [NSNull null]),
-    @"activity" : (self.activity ?: [NSNull null]),
+    @"activityType" : @(self.activityType),
     @"startTimestamp" : (self.startTimestamp ?: [NSNull null]),
     @"endTimestamp" : (self.endTimestamp ?: [NSNull null]),
     @"duration" : (self.duration ?: [NSNull null]),
@@ -154,6 +184,9 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     
     case 130:     
       return [PermissionResult fromMap:[self readValue]];
+    
+    case 131:     
+      return [Predicate fromMap:[self readValue]];
     
     default:    
       return [super readValueOfType:type];
@@ -177,6 +210,10 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
   } else 
   if ([value isKindOfClass:[PermissionResult class]]) {
     [self writeByte:130];
+    [self writeValue:[value toMap]];
+  } else 
+  if ([value isKindOfClass:[Predicate class]]) {
+    [self writeByte:131];
     [self writeValue:[value toMap]];
   } else 
 {
@@ -341,9 +378,11 @@ void HealthConnectHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObj
         binaryMessenger:binaryMessenger
         codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(getHealthConnectWorkoutsDataWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(getHealthConnectWorkoutsDataWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(getHealthConnectWorkoutsDataPredicate:completion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(getHealthConnectWorkoutsDataPredicate:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        [api getHealthConnectWorkoutsDataWithCompletion:^(NSArray<HealthConnectWorkoutData *> *_Nullable output, FlutterError *_Nullable error) {
+        NSArray *args = message;
+        Predicate *arg_predicate = GetNullableObjectAtIndex(args, 0);
+        [api getHealthConnectWorkoutsDataPredicate:arg_predicate completion:^(NSArray<HealthConnectWorkoutData *> *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

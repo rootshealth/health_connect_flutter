@@ -269,7 +269,10 @@ class HealthConnectHostApiImpl(
         Log.e(TAG, "Activity was not attached")
     }
 
-    override fun getHealthConnectWorkoutsData(result: Pigeon.Result<List<Pigeon.HealthConnectWorkoutData>>?) {
+    override fun getHealthConnectWorkoutsData(
+        predicate: Pigeon.Predicate,
+        result: Pigeon.Result<List<Pigeon.HealthConnectWorkoutData>>?
+    ) {
         var requestInProgress = false
         activityPluginBinding?.activity?.let { activity ->
             val fitnessOptions = FitnessOptions.builder()
@@ -287,13 +290,17 @@ class HealthConnectHostApiImpl(
                 return
             }
 
-            val endDateTime = LocalDateTime.now()
-            val startDateTime = endDateTime.minusYears(1)
-            val endSeconds = endDateTime.atZone(ZoneId.systemDefault()).toEpochSecond()
-            val startSeconds = startDateTime.atZone(ZoneId.systemDefault()).toEpochSecond()
+//            val endDateTime = LocalDateTime.now()
+//            val startDateTime = endDateTime.minusYears(1)
+//            val endSeconds = endDateTime.atZone(ZoneId.systemDefault()).toEpochSecond()
+//            val startSeconds = startDateTime.atZone(ZoneId.systemDefault()).toEpochSecond()
 
             val readRequest = SessionReadRequest.Builder()
-                .setTimeInterval(startSeconds, endSeconds, TimeUnit.SECONDS)
+                .setTimeInterval(
+                    predicate.startDateInMsSinceEpoch,
+                    predicate.endDateInMsSinceEpoch,
+                    TimeUnit.MILLISECONDS
+                )
                 .read(DataType.TYPE_WORKOUT_EXERCISE)
                 .includeActivitySessions()
                 .enableServerQueries()

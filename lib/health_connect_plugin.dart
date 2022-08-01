@@ -17,6 +17,128 @@ enum PermissionType {
   oAuth,
 }
 
+enum WorkoutActivityType {
+  aerobics,
+  archery,
+  badminton,
+  baseball,
+  basketball,
+  biathlon,
+  biking,
+  bikingHand,
+  bikingRoad,
+  bikingSpinning,
+  bikingStationary,
+  bikingUtility,
+  boxing,
+  calisthenics,
+  circuitTraining,
+  crossfit,
+  curling,
+  dancing,
+  diving,
+  elevator,
+  elliptical,
+  ergometer,
+  escalator,
+  fencing,
+  footballAmerican,
+  footballSoccer,
+  frisbeeDisc,
+  gardening,
+  golf,
+  guidedBreathing,
+  gymnastics,
+  handball,
+  highIntensityIntervalTraining,
+  hiking,
+  hockey,
+  horsebackRiding,
+  housework,
+  iceSkating,
+  intervalTraining,
+  inVehicle,
+  jumpRope,
+  kayaking,
+  kettlebellTraining,
+  kickboxing,
+  kickScooter,
+  kiteSurfing,
+  martialArts,
+  meditation,
+  mixedMartialArts,
+  other,
+  p90x,
+  paragliding,
+  pilates,
+  polo,
+  racquetball,
+  rockClimbing,
+  rowing,
+  rowingMachine,
+  rugby,
+  running,
+  runningJogging,
+  runningSand,
+  runningTreadmill,
+  sailing,
+  scubaDiving,
+  skateboarding,
+  skating,
+  skatingCross,
+  skatingIndoor,
+  skatingInline,
+  skiing,
+  skiingBackCountry,
+  skiingCrossCountry,
+  skiingDownhill,
+  skiingKite,
+  skiingRoller,
+  sledding,
+  sleep,
+  sleepAwake,
+  sleepDeep,
+  sleepLight,
+  sleepRem,
+  snowboarding,
+  snowmobile,
+  snowshoeing,
+  softball,
+  squash,
+  stairClimbing,
+  stairClimbingMachine,
+  standUpPaddleBoarding,
+  still,
+  strengthTraining,
+  surfing,
+  swimming,
+  swimmingOpenWater,
+  swimmingPool,
+  tableTennis,
+  teamSports,
+  tennis,
+  tilting,
+  treadMeal,
+  unknown,
+  volleyball,
+  volleyballBeach,
+  volleyballIndoor,
+  wakeBoarding,
+  walking,
+  walkingFitness,
+  walkingNordic,
+  walkingPaced,
+  walkingStroller,
+  walkingTreadmill,
+  waterPolo,
+  weightlifting,
+  wheelchair,
+  windsurfing,
+  yoga,
+  zumba,
+  bowling,
+}
+
 class PermissionResult {
   PermissionResult({
     required this.permissionType,
@@ -69,13 +191,38 @@ class HealthConnectData {
   }
 }
 
+class Predicate {
+  Predicate({
+    required this.startDateInMsSinceEpoch,
+    required this.endDateInMsSinceEpoch,
+  });
+
+  int startDateInMsSinceEpoch;
+  int endDateInMsSinceEpoch;
+
+  Object encode() {
+    final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
+    pigeonMap['startDateInMsSinceEpoch'] = startDateInMsSinceEpoch;
+    pigeonMap['endDateInMsSinceEpoch'] = endDateInMsSinceEpoch;
+    return pigeonMap;
+  }
+
+  static Predicate decode(Object message) {
+    final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
+    return Predicate(
+      startDateInMsSinceEpoch: pigeonMap['startDateInMsSinceEpoch']! as int,
+      endDateInMsSinceEpoch: pigeonMap['endDateInMsSinceEpoch']! as int,
+    );
+  }
+}
+
 class HealthConnectWorkoutData {
   HealthConnectWorkoutData({
     this.uuid,
     this.identifier,
     this.name,
     this.description,
-    this.activity,
+    this.activityType,
     this.startTimestamp,
     this.endTimestamp,
     this.duration,
@@ -85,7 +232,7 @@ class HealthConnectWorkoutData {
   String? identifier;
   String? name;
   String? description;
-  String? activity;
+  WorkoutActivityType? activityType;
   int? startTimestamp;
   int? endTimestamp;
   int? duration;
@@ -96,7 +243,7 @@ class HealthConnectWorkoutData {
     pigeonMap['identifier'] = identifier;
     pigeonMap['name'] = name;
     pigeonMap['description'] = description;
-    pigeonMap['activity'] = activity;
+    pigeonMap['activityType'] = activityType?.index;
     pigeonMap['startTimestamp'] = startTimestamp;
     pigeonMap['endTimestamp'] = endTimestamp;
     pigeonMap['duration'] = duration;
@@ -110,7 +257,9 @@ class HealthConnectWorkoutData {
       identifier: pigeonMap['identifier'] as String?,
       name: pigeonMap['name'] as String?,
       description: pigeonMap['description'] as String?,
-      activity: pigeonMap['activity'] as String?,
+      activityType: pigeonMap['activityType'] != null
+          ? WorkoutActivityType.values[pigeonMap['activityType']! as int]
+          : null,
       startTimestamp: pigeonMap['startTimestamp'] as int?,
       endTimestamp: pigeonMap['endTimestamp'] as int?,
       duration: pigeonMap['duration'] as int?,
@@ -134,6 +283,10 @@ class _HealthConnectHostApiCodec extends StandardMessageCodec {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else 
+    if (value is Predicate) {
+      buffer.putUint8(131);
+      writeValue(buffer, value.encode());
+    } else 
 {
       super.writeValue(buffer, value);
     }
@@ -149,6 +302,9 @@ class _HealthConnectHostApiCodec extends StandardMessageCodec {
       
       case 130:       
         return PermissionResult.decode(readValue(buffer)!);
+      
+      case 131:       
+        return Predicate.decode(readValue(buffer)!);
       
       default:      
         return super.readValueOfType(type, buffer);
@@ -346,11 +502,11 @@ class HealthConnectHostApi {
     }
   }
 
-  Future<List<HealthConnectWorkoutData?>> getHealthConnectWorkoutsData() async {
+  Future<List<HealthConnectWorkoutData?>> getHealthConnectWorkoutsData(Predicate arg_predicate) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.HealthConnectHostApi.getHealthConnectWorkoutsData', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
-        await channel.send(null) as Map<Object?, Object?>?;
+        await channel.send(<Object?>[arg_predicate]) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',

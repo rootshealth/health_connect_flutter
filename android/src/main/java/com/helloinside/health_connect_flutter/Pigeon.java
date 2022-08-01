@@ -42,6 +42,133 @@ public class Pigeon {
     }
   }
 
+  public enum WorkoutActivityType {
+    aerobics(0),
+    archery(1),
+    badminton(2),
+    baseball(3),
+    basketball(4),
+    biathlon(5),
+    biking(6),
+    bikingHand(7),
+    bikingRoad(8),
+    bikingSpinning(9),
+    bikingStationary(10),
+    bikingUtility(11),
+    boxing(12),
+    calisthenics(13),
+    circuitTraining(14),
+    crossfit(15),
+    curling(16),
+    dancing(17),
+    diving(18),
+    elevator(19),
+    elliptical(20),
+    ergometer(21),
+    escalator(22),
+    fencing(23),
+    footballAmerican(24),
+    footballSoccer(25),
+    frisbeeDisc(26),
+    gardening(27),
+    golf(28),
+    guidedBreathing(29),
+    gymnastics(30),
+    handball(31),
+    highIntensityIntervalTraining(32),
+    hiking(33),
+    hockey(34),
+    horsebackRiding(35),
+    housework(36),
+    iceSkating(37),
+    intervalTraining(38),
+    inVehicle(39),
+    jumpRope(40),
+    kayaking(41),
+    kettlebellTraining(42),
+    kickboxing(43),
+    kickScooter(44),
+    kiteSurfing(45),
+    martialArts(46),
+    meditation(47),
+    mixedMartialArts(48),
+    other(49),
+    p90x(50),
+    paragliding(51),
+    pilates(52),
+    polo(53),
+    racquetball(54),
+    rockClimbing(55),
+    rowing(56),
+    rowingMachine(57),
+    rugby(58),
+    running(59),
+    runningJogging(60),
+    runningSand(61),
+    runningTreadmill(62),
+    sailing(63),
+    scubaDiving(64),
+    skateboarding(65),
+    skating(66),
+    skatingCross(67),
+    skatingIndoor(68),
+    skatingInline(69),
+    skiing(70),
+    skiingBackCountry(71),
+    skiingCrossCountry(72),
+    skiingDownhill(73),
+    skiingKite(74),
+    skiingRoller(75),
+    sledding(76),
+    sleep(77),
+    sleepAwake(78),
+    sleepDeep(79),
+    sleepLight(80),
+    sleepRem(81),
+    snowboarding(82),
+    snowmobile(83),
+    snowshoeing(84),
+    softball(85),
+    squash(86),
+    stairClimbing(87),
+    stairClimbingMachine(88),
+    standUpPaddleBoarding(89),
+    still(90),
+    strengthTraining(91),
+    surfing(92),
+    swimming(93),
+    swimmingOpenWater(94),
+    swimmingPool(95),
+    tableTennis(96),
+    teamSports(97),
+    tennis(98),
+    tilting(99),
+    treadMeal(100),
+    unknown(101),
+    volleyball(102),
+    volleyballBeach(103),
+    volleyballIndoor(104),
+    wakeBoarding(105),
+    walking(106),
+    walkingFitness(107),
+    walkingNordic(108),
+    walkingPaced(109),
+    walkingStroller(110),
+    walkingTreadmill(111),
+    waterPolo(112),
+    weightlifting(113),
+    wheelchair(114),
+    windsurfing(115),
+    yoga(116),
+    zumba(117),
+    bowling(118);
+
+    private int index;
+    private WorkoutActivityType(final int index) {
+      this.index = index;
+    }
+  }
+
   /** Generated class from Pigeon that represents data sent in messages. */
   public static class PermissionResult {
     private @NonNull PermissionType permissionType;
@@ -147,6 +274,62 @@ public class Pigeon {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
+  public static class Predicate {
+    private @NonNull Long startDateInMsSinceEpoch;
+    public @NonNull Long getStartDateInMsSinceEpoch() { return startDateInMsSinceEpoch; }
+    public void setStartDateInMsSinceEpoch(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"startDateInMsSinceEpoch\" is null.");
+      }
+      this.startDateInMsSinceEpoch = setterArg;
+    }
+
+    private @NonNull Long endDateInMsSinceEpoch;
+    public @NonNull Long getEndDateInMsSinceEpoch() { return endDateInMsSinceEpoch; }
+    public void setEndDateInMsSinceEpoch(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"endDateInMsSinceEpoch\" is null.");
+      }
+      this.endDateInMsSinceEpoch = setterArg;
+    }
+
+    /** Constructor is private to enforce null safety; use Builder. */
+    private Predicate() {}
+    public static final class Builder {
+      private @Nullable Long startDateInMsSinceEpoch;
+      public @NonNull Builder setStartDateInMsSinceEpoch(@NonNull Long setterArg) {
+        this.startDateInMsSinceEpoch = setterArg;
+        return this;
+      }
+      private @Nullable Long endDateInMsSinceEpoch;
+      public @NonNull Builder setEndDateInMsSinceEpoch(@NonNull Long setterArg) {
+        this.endDateInMsSinceEpoch = setterArg;
+        return this;
+      }
+      public @NonNull Predicate build() {
+        Predicate pigeonReturn = new Predicate();
+        pigeonReturn.setStartDateInMsSinceEpoch(startDateInMsSinceEpoch);
+        pigeonReturn.setEndDateInMsSinceEpoch(endDateInMsSinceEpoch);
+        return pigeonReturn;
+      }
+    }
+    @NonNull Map<String, Object> toMap() {
+      Map<String, Object> toMapResult = new HashMap<>();
+      toMapResult.put("startDateInMsSinceEpoch", startDateInMsSinceEpoch);
+      toMapResult.put("endDateInMsSinceEpoch", endDateInMsSinceEpoch);
+      return toMapResult;
+    }
+    static @NonNull Predicate fromMap(@NonNull Map<String, Object> map) {
+      Predicate pigeonResult = new Predicate();
+      Object startDateInMsSinceEpoch = map.get("startDateInMsSinceEpoch");
+      pigeonResult.setStartDateInMsSinceEpoch((startDateInMsSinceEpoch == null) ? null : ((startDateInMsSinceEpoch instanceof Integer) ? (Integer)startDateInMsSinceEpoch : (Long)startDateInMsSinceEpoch));
+      Object endDateInMsSinceEpoch = map.get("endDateInMsSinceEpoch");
+      pigeonResult.setEndDateInMsSinceEpoch((endDateInMsSinceEpoch == null) ? null : ((endDateInMsSinceEpoch instanceof Integer) ? (Integer)endDateInMsSinceEpoch : (Long)endDateInMsSinceEpoch));
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
   public static class HealthConnectWorkoutData {
     private @Nullable String uuid;
     public @Nullable String getUuid() { return uuid; }
@@ -172,10 +355,10 @@ public class Pigeon {
       this.description = setterArg;
     }
 
-    private @Nullable String activity;
-    public @Nullable String getActivity() { return activity; }
-    public void setActivity(@Nullable String setterArg) {
-      this.activity = setterArg;
+    private @Nullable WorkoutActivityType activityType;
+    public @Nullable WorkoutActivityType getActivityType() { return activityType; }
+    public void setActivityType(@Nullable WorkoutActivityType setterArg) {
+      this.activityType = setterArg;
     }
 
     private @Nullable Long startTimestamp;
@@ -217,9 +400,9 @@ public class Pigeon {
         this.description = setterArg;
         return this;
       }
-      private @Nullable String activity;
-      public @NonNull Builder setActivity(@Nullable String setterArg) {
-        this.activity = setterArg;
+      private @Nullable WorkoutActivityType activityType;
+      public @NonNull Builder setActivityType(@Nullable WorkoutActivityType setterArg) {
+        this.activityType = setterArg;
         return this;
       }
       private @Nullable Long startTimestamp;
@@ -243,7 +426,7 @@ public class Pigeon {
         pigeonReturn.setIdentifier(identifier);
         pigeonReturn.setName(name);
         pigeonReturn.setDescription(description);
-        pigeonReturn.setActivity(activity);
+        pigeonReturn.setActivityType(activityType);
         pigeonReturn.setStartTimestamp(startTimestamp);
         pigeonReturn.setEndTimestamp(endTimestamp);
         pigeonReturn.setDuration(duration);
@@ -256,7 +439,7 @@ public class Pigeon {
       toMapResult.put("identifier", identifier);
       toMapResult.put("name", name);
       toMapResult.put("description", description);
-      toMapResult.put("activity", activity);
+      toMapResult.put("activityType", activityType == null ? null : activityType.index);
       toMapResult.put("startTimestamp", startTimestamp);
       toMapResult.put("endTimestamp", endTimestamp);
       toMapResult.put("duration", duration);
@@ -272,8 +455,8 @@ public class Pigeon {
       pigeonResult.setName((String)name);
       Object description = map.get("description");
       pigeonResult.setDescription((String)description);
-      Object activity = map.get("activity");
-      pigeonResult.setActivity((String)activity);
+      Object activityType = map.get("activityType");
+      pigeonResult.setActivityType(activityType == null ? null : WorkoutActivityType.values()[(int)activityType]);
       Object startTimestamp = map.get("startTimestamp");
       pigeonResult.setStartTimestamp((startTimestamp == null) ? null : ((startTimestamp instanceof Integer) ? (Integer)startTimestamp : (Long)startTimestamp));
       Object endTimestamp = map.get("endTimestamp");
@@ -303,6 +486,9 @@ public class Pigeon {
         case (byte)130:         
           return PermissionResult.fromMap((Map<String, Object>) readValue(buffer));
         
+        case (byte)131:         
+          return Predicate.fromMap((Map<String, Object>) readValue(buffer));
+        
         default:        
           return super.readValueOfType(type, buffer);
         
@@ -322,6 +508,10 @@ public class Pigeon {
         stream.write(130);
         writeValue(stream, ((PermissionResult) value).toMap());
       } else 
+      if (value instanceof Predicate) {
+        stream.write(131);
+        writeValue(stream, ((Predicate) value).toMap());
+      } else 
 {
         super.writeValue(stream, value);
       }
@@ -337,7 +527,7 @@ public class Pigeon {
     void openSettings();
     void disconnect(Result<Void> result);
     void getHealthConnectData(Result<HealthConnectData> result);
-    void getHealthConnectWorkoutsData(Result<List<HealthConnectWorkoutData>> result);
+    void getHealthConnectWorkoutsData(@NonNull Predicate predicate, Result<List<HealthConnectWorkoutData>> result);
     void subscribeToHealthConnectWorkoutsData();
 
     /** The codec used by HealthConnectHostApi. */
@@ -527,6 +717,11 @@ public class Pigeon {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              Predicate predicateArg = (Predicate)args.get(0);
+              if (predicateArg == null) {
+                throw new NullPointerException("predicateArg unexpectedly null.");
+              }
               Result<List<HealthConnectWorkoutData>> resultCallback = new Result<List<HealthConnectWorkoutData>>() {
                 public void success(List<HealthConnectWorkoutData> result) {
                   wrapped.put("result", result);
@@ -538,7 +733,7 @@ public class Pigeon {
                 }
               };
 
-              api.getHealthConnectWorkoutsData(resultCallback);
+              api.getHealthConnectWorkoutsData(predicateArg, resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));

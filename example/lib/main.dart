@@ -18,7 +18,7 @@ class HealthConnectFlutterApiImpl implements HealthConnectFlutterApi {
     Identifier: ${healthConnectWorkoutData.identifier}
     Name: ${healthConnectWorkoutData.name}
     Description: ${healthConnectWorkoutData.description}
-    Activity: ${healthConnectWorkoutData.activity}
+    Activity: ${healthConnectWorkoutData.activityType}
     StartTimestamp: ${healthConnectWorkoutData.startTimestamp}
     EndTimestamp: ${healthConnectWorkoutData.endTimestamp}''';
     print(info);
@@ -153,8 +153,14 @@ class _MyAppState extends State<MyApp> {
               TextButton(
                   style: buttonStyle,
                   onPressed: () async {
+                    final endDateTime = DateTime.now();
+                    final startDateTime = endDateTime.subtract(const Duration(days: 30));
+
+                    final predicate = Predicate(
+                        startDateInMsSinceEpoch: startDateTime.millisecondsSinceEpoch,
+                        endDateInMsSinceEpoch: endDateTime.millisecondsSinceEpoch);
                     final healthConnectWorkoutsData =
-                        await _healthConnectHostApi.getHealthConnectWorkoutsData();
+                        await _healthConnectHostApi.getHealthConnectWorkoutsData(predicate);
                     setState(() {
                       _healthConnectWorkoutsData = healthConnectWorkoutsData;
                     });
