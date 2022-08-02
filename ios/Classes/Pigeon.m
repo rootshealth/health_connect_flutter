@@ -344,8 +344,8 @@ void HealthConnectHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObj
     if (api) {
       NSCAssert([api respondsToSelector:@selector(disconnectWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(disconnectWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        [api disconnectWithCompletion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
+        [api disconnectWithCompletion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
         }];
       }];
     }

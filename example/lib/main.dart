@@ -131,12 +131,39 @@ class _MyAppState extends State<MyApp> {
                   child: const Text("Request Google Fit OAuth permission")),
               TextButton(
                   style: buttonStyle,
+                  onPressed: () async {
+                    final result = await _healthConnectHostApi.hasActivityRecognitionPermission();
+                    final permissionStatus =
+                        result ? PermissionStatus.granted : PermissionStatus.denied;
+                    final permissionResult = PermissionResult(
+                        permissionType: PermissionType.activityRecognition,
+                        permissionStatus: permissionStatus);
+                    setState(() {
+                      _activityRecognitionPermissionResult = permissionResult;
+                    });
+                  },
+                  child: const Text("Check Activity Recognition permission")),
+              TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    final result = await _healthConnectHostApi.hasOAuthPermission();
+                    final permissionStatus =
+                        result ? PermissionStatus.granted : PermissionStatus.denied;
+                    final permissionResult = PermissionResult(
+                        permissionType: PermissionType.oAuth, permissionStatus: permissionStatus);
+                    setState(() {
+                      _oAuthPermissionResult = permissionResult;
+                    });
+                  },
+                  child: const Text("Check OAuth permission")),
+              TextButton(
+                  style: buttonStyle,
                   onPressed: () async => await _healthConnectHostApi.openSettings(),
                   child: const Text("Open settings")),
               TextButton(
                   style: buttonStyle,
                   onPressed: () async => await _healthConnectHostApi.disconnect(),
-                  child: const Text("Disconnect")),
+                  child: const Text("Disconnect from Google Fit")),
               const Padding(
                 padding: EdgeInsets.only(top: 30),
                 child: Text("Data", style: titleStyle),

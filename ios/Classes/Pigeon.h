@@ -137,7 +137,6 @@ typedef NS_ENUM(NSUInteger, WorkoutActivityType) {
   WorkoutActivityTypeWindsurfing = 115,
   WorkoutActivityTypeYoga = 116,
   WorkoutActivityTypeZumba = 117,
-  WorkoutActivityTypeBowling = 118,
 };
 
 @class PermissionResult;
@@ -200,7 +199,7 @@ NSObject<FlutterMessageCodec> *HealthConnectHostApiGetCodec(void);
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)hasOAuthPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;
 - (void)openSettingsWithError:(FlutterError *_Nullable *_Nonnull)error;
-- (void)disconnectWithCompletion:(void(^)(FlutterError *_Nullable))completion;
+- (void)disconnectWithCompletion:(void(^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)getHealthConnectDataWithCompletion:(void(^)(HealthConnectData *_Nullable, FlutterError *_Nullable))completion;
 - (void)getHealthConnectWorkoutsDataPredicate:(Predicate *)predicate completion:(void(^)(NSArray<HealthConnectWorkoutData *> *_Nullable, FlutterError *_Nullable))completion;
 - (void)subscribeToHealthConnectWorkoutsDataWithError:(FlutterError *_Nullable *_Nonnull)error;

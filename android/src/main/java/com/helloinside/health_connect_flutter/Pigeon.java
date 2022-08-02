@@ -160,8 +160,7 @@ public class Pigeon {
     wheelchair(114),
     windsurfing(115),
     yoga(116),
-    zumba(117),
-    bowling(118);
+    zumba(117);
 
     private int index;
     private WorkoutActivityType(final int index) {
@@ -525,7 +524,7 @@ public class Pigeon {
     void requestOAuthPermission(Result<PermissionResult> result);
     @NonNull Boolean hasOAuthPermission();
     void openSettings();
-    void disconnect(Result<Void> result);
+    void disconnect(Result<Boolean> result);
     void getHealthConnectData(Result<HealthConnectData> result);
     void getHealthConnectWorkoutsData(@NonNull Predicate predicate, Result<List<HealthConnectWorkoutData>> result);
     void subscribeToHealthConnectWorkoutsData();
@@ -659,9 +658,9 @@ public class Pigeon {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              Result<Void> resultCallback = new Result<Void>() {
-                public void success(Void result) {
-                  wrapped.put("result", null);
+              Result<Boolean> resultCallback = new Result<Boolean>() {
+                public void success(Boolean result) {
+                  wrapped.put("result", result);
                   reply.reply(wrapped);
                 }
                 public void error(Throwable error) {

@@ -12,6 +12,9 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.DataType
@@ -86,10 +89,7 @@ class HealthConnectHostApiImpl(
 
             ActivityCompat.requestPermissions(
                 activityPluginBinding.activity,
-                arrayOf(
-                    Permission.Type.ACTIVITY_RECOGNITION_PERMISSION,
-                    Permission.Type.ACCESS_FINE_LOCATION
-                ),
+                arrayOf(Permission.Type.ACTIVITY_RECOGNITION_PERMISSION),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
             requestInProgress = true
@@ -181,22 +181,30 @@ class HealthConnectHostApiImpl(
         Log.e(TAG, "Activity was not properly attached")
     }
 
-    override fun disconnect(result: Pigeon.Result<Void>?) {
+    override fun disconnect(result: Pigeon.Result<Boolean>?) {
         activityPluginBinding?.activity?.let {
             if (hasOAuthPermission()) {
                 Fitness.getConfigClient(it, GoogleSignIn.getAccountForExtension(it, fitnessOptions))
                     .disableFit()
-                    .addOnSuccessListener {
-                        Log.d(TAG, "Disabled Google Fit")
-                        result?.success(null)
+                    .continueWithTask { _ ->
+                        // https://github.com/android/fit-samples/issues/28
+                        val signInOptions = GoogleSignInOptions.Builder()
+                            .addExtension(fitnessOptions)
+                            .build()
+                        GoogleSignIn.getClient(it, signInOptions).revokeAccess()
                     }
                     .addOnFailureListener { e ->
-                        Log.d(TAG, "There was an error disabling Google Fit", e)
-                        result?.error(Exception(e))
+                        if (e is ApiException && e.statusCode == CommonStatusCodes.SIGN_IN_REQUIRED) {
+                            Log.d(TAG, "Disabled Google Fit")
+                            result?.success(true)
+                        } else {
+                            Log.d(TAG, "There was an error disabling Google Fit", e)
+                            result?.error(Exception(e))
+                        }
                     }
                 return
             }
-            result?.success(null)
+            result?.success(true)
         }
         Log.e(TAG, "Activity was not properly attached")
     }
@@ -290,11 +298,6 @@ class HealthConnectHostApiImpl(
                 return
             }
 
-//            val endDateTime = LocalDateTime.now()
-//            val startDateTime = endDateTime.minusYears(1)
-//            val endSeconds = endDateTime.atZone(ZoneId.systemDefault()).toEpochSecond()
-//            val startSeconds = startDateTime.atZone(ZoneId.systemDefault()).toEpochSecond()
-
             val readRequest = SessionReadRequest.Builder()
                 .setTimeInterval(
                     predicate.startDateInMsSinceEpoch,
@@ -341,25 +344,6 @@ class HealthConnectHostApiImpl(
     }
 
     override fun subscribeToHealthConnectWorkoutsData() {
-//        for (i in 1..5L) {
-//            Thread.sleep(100) // pret
-//            // end we are computing it
-//            val healthConnectWorkoutDataBuilder =
-//                Pigeon.HealthConnectWorkoutData.Builder()
-//
-//            val healthConnectWorkoutData =
-//                healthConnectWorkoutDataBuilder
-//                    .setUuid("1")
-//                    .setIdentifier("idetifier")
-//                    .setStartTimestamp(0 + i)
-//                    .setEndTimestamp(1 + i)
-//                    .setDuration(
-//                        Duration.ofHours(i).toHours()
-//                    ).build()
-//            healthConnectFlutterApi?.onWorkoutDataUpdated(healthConnectWorkoutData, null)
-//        }
-//        return
-
         activityPluginBinding?.activity?.let { activity ->
             val fitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_WORKOUT_EXERCISE, FitnessOptions.ACCESS_READ)

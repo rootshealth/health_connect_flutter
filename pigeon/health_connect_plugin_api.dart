@@ -122,8 +122,7 @@ enum WorkoutActivityType {
   wheelchair("wheelchair"),
   windsurfing("windsurfing"),
   yoga("yoga"),
-  zumba("zumba"),
-  bowling("bowling");
+  zumba("zumba");
 
   const WorkoutActivityType(this.value);
 
@@ -201,7 +200,7 @@ abstract class HealthConnectHostApi {
   void openSettings();
 
   @async
-  void disconnect();
+  bool disconnect();
 
   @async
   HealthConnectData getHealthConnectData();

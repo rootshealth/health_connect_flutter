@@ -136,7 +136,6 @@ enum WorkoutActivityType {
   windsurfing,
   yoga,
   zumba,
-  bowling,
 }
 
 class PermissionResult {
@@ -453,7 +452,7 @@ class HealthConnectHostApi {
     }
   }
 
-  Future<void> disconnect() async {
+  Future<bool> disconnect() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.HealthConnectHostApi.disconnect', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
@@ -470,8 +469,13 @@ class HealthConnectHostApi {
         message: error['message'] as String?,
         details: error['details'],
       );
+    } else if (replyMap['result'] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
     } else {
-      return;
+      return (replyMap['result'] as bool?)!;
     }
   }
 
