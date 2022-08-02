@@ -9,6 +9,7 @@ class Permission {
     object Type {
         const val ACTIVITY_RECOGNITION_PERMISSION = Manifest.permission.ACTIVITY_RECOGNITION
         const val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+        const val BODY_SENSORS = Manifest.permission.BODY_SENSORS
     }
 
     object Code {

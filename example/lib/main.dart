@@ -64,6 +64,14 @@ class _MyAppState extends State<MyApp> {
       packageName = (await PackageInfo.fromPlatform()).packageName;
       //hasPermission = await _healthConnectPlugin.hasPermission();
       _healthConnectHostApi.subscribeToHealthConnectWorkoutsData();
+
+      final endDateTime = DateTime.now();
+      final startDateTime = endDateTime.subtract(const Duration(days: 30));
+      final predicate = Predicate(
+          startDateInMsSinceEpoch: startDateTime.millisecondsSinceEpoch,
+          endDateInMsSinceEpoch: endDateTime.millisecondsSinceEpoch);
+      //_healthConnectHostApi.getHealthConnectWorkoutsData(predicate);
+      _healthConnectHostApi.getHealthConnectData();
     } on PlatformException {
       if (kDebugMode) {
         print("Failed to resolve platform method!");

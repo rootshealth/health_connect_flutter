@@ -40,6 +40,8 @@ class HealthConnectHostApiImpl(
         .addDataType(DataType.TYPE_WORKOUT_EXERCISE, FitnessOptions.ACCESS_READ)
         .build()
 
+    private var receiver: BroadcastReceiver? = null
+
     override fun requestActivityRecognitionPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
         Log.e(TAG, "requestActivityRecognitionPermission")
         // https://stackoverflow.com/questions/65666404/java-lang-illegalstateexception-reply-already-submitted-when-trying-to-call
@@ -89,7 +91,10 @@ class HealthConnectHostApiImpl(
 
             ActivityCompat.requestPermissions(
                 activityPluginBinding.activity,
-                arrayOf(Permission.Type.ACTIVITY_RECOGNITION_PERMISSION),
+                arrayOf(
+                    Permission.Type.ACTIVITY_RECOGNITION_PERMISSION,
+                    Permission.Type.BODY_SENSORS
+                ),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
             requestInProgress = true
@@ -242,7 +247,8 @@ class HealthConnectHostApiImpl(
             Fitness.getHistoryClient(activity, account)
                 .readData(readRequest)
                 .addOnSuccessListener {
-                    Log.d(TAG, it.dataSets.toString())
+                    //Log.d(TAG, it.dataSets.toString())
+                    //Log.d(TAG, it.buckets.toString())
 
                     val healthConnectDataBuilder = Pigeon.HealthConnectData.Builder()
 
@@ -263,6 +269,12 @@ class HealthConnectHostApiImpl(
                         healthConnectDataBuilder.setWeight(weight)
                     }
 
+
+                    val heartBuckets = it.buckets
+                    if (heartBuckets.isNotEmpty()) {
+                        logBuckets(heartBuckets)
+                    }
+
                     val healthConnectData = healthConnectDataBuilder.build();
                     result?.success(healthConnectData)
                 }
@@ -270,9 +282,7 @@ class HealthConnectHostApiImpl(
                     Log.e(TAG, "OnFailure()", it)
                     result?.error(it)
                 }
-                .addOnCompleteListener {
-                    //TODO
-                }
+            return
         }
         Log.e(TAG, "Activity was not attached")
     }
@@ -365,22 +375,25 @@ class HealthConnectHostApiImpl(
                 PendingIntent.getBroadcast(activity, 0, intent, PendingIntent.FLAG_MUTABLE)
             Fitness.getSessionsClient(activity, account).registerForSessions(pendingIntent)
 
-            val receiver: BroadcastReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context?, intent: Intent?) {
-                    val session = intent?.getParcelableExtra<Session>(intentExtraName)
-                    Log.e(TAG, "BroadcastReceiver: session: $session")
-                    session?.let {
-                        val reply = Pigeon.HealthConnectFlutterApi.Reply<Void> { }
-                        val healthConnectWorkoutData = it.toHealthConnectWorkoutData()
-                        healthConnectFlutterApi?.onWorkoutDataUpdated(
-                            healthConnectWorkoutData,
-                            reply
-                        )
-                    }
-                }
-            }
-
             try {
+                if (receiver == null) {
+                    receiver = object : BroadcastReceiver() {
+                        override fun onReceive(context: Context?, intent: Intent?) {
+                            val session = intent?.getParcelableExtra<Session>(intentExtraName)
+                            Log.e(TAG, "BroadcastReceiver: session: $session")
+                            session?.let {
+                                val reply = Pigeon.HealthConnectFlutterApi.Reply<Void> { }
+                                val healthConnectWorkoutData = it.toHealthConnectWorkoutData()
+                                healthConnectFlutterApi?.onWorkoutDataUpdated(
+                                    healthConnectWorkoutData,
+                                    reply
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    activity.unregisterReceiver(receiver)
+                }
                 activity.registerReceiver(receiver, intentFilter)
             } catch (e: IllegalArgumentException) {
                 Log.d(TAG, e.toString())

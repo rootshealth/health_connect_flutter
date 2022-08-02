@@ -1,6 +1,7 @@
 package com.helloinside.health_connect_flutter
 
 import android.util.Log
+import com.google.android.gms.fitness.data.Bucket
 import com.google.android.gms.fitness.data.DataPoint
 import com.google.android.gms.fitness.data.DataSet
 import com.google.android.gms.fitness.data.Session
@@ -21,19 +22,55 @@ fun logSession(session: Session) {
     Log.d(TAG, "\tEnd Time: ${session.getEndTime(TimeUnit.MINUTES)}")
 }
 
+fun logDataSets(dataSets: List<DataSet>) {
+    if (!BuildConfig.DEBUG) {
+        return
+    }
+    for (dataSet in dataSets) {
+        logDataSet(dataSet)
+    }
+}
+
 fun logDataSet(dataSet: DataSet) {
     if (!BuildConfig.DEBUG) {
         return
     }
-    Log.d(TAG, "Data returned for Data type: ${dataSet.dataType.name}")
     for (dataPoint in dataSet.dataPoints) {
-        Log.d(TAG, "Data point:")
-        Log.d(TAG, "\tType: ${dataPoint.dataType.name}")
-        Log.d(TAG, "\tStart: ${dataPoint.getStartTimeString()}")
-        Log.d(TAG, "\tEnd: ${dataPoint.getEndTimeString()}")
-        for (field in dataPoint.dataType.fields) {
-            Log.d(TAG, "\tField: ${field.name} Value: ${dataPoint.getValue(field)}")
-        }
+        logDataPoint(dataPoint)
+    }
+}
+
+fun logDataPoint(dataPoint: DataPoint) {
+    if (!BuildConfig.DEBUG) {
+        return
+    }
+    Log.d(TAG, "Data point:")
+    Log.d(TAG, "\tType: ${dataPoint.dataType.name}")
+    Log.d(TAG, "\tStart: ${dataPoint.getStartTimeString()}")
+    Log.d(TAG, "\tEnd: ${dataPoint.getEndTimeString()}")
+    for (field in dataPoint.dataType.fields) {
+        Log.d(TAG, "\tField: ${field.name} Value: ${dataPoint.getValue(field)}")
+    }
+}
+
+fun logBuckets(buckets: List<Bucket>) {
+    if (!BuildConfig.DEBUG) {
+        return
+    }
+    Log.d(TAG, "Number of buckets: ${buckets.size}")
+    for (bucket in buckets) {
+        logBucket(bucket)
+    }
+}
+
+fun logBucket(bucket: Bucket) {
+    Log.d(TAG, "----------------")
+    Log.d(TAG, "Bucket:")
+    Log.d(TAG, "\tActivity: ${bucket.activity}")
+    Log.d(TAG, "\tBucketType: ${bucket.bucketType}")
+    logDataSets(bucket.dataSets)
+    bucket.session?.let {
+        logSession(it)
     }
 }
 
