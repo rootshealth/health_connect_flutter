@@ -361,12 +361,12 @@ class HealthConnectHostApiImpl(
 
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-                GoogleSignIn.requestPermissions(
-                    activity,
-                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                    account,
-                    fitnessOptions
-                )
+//                GoogleSignIn.requestPermissions(
+//                    activity,
+//                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
+//                    account,
+//                    fitnessOptions
+//                )
                 return
             }
 
