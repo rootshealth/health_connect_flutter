@@ -187,16 +187,26 @@ class HealthConnectHostApiImpl(
     }
 
     override fun disconnect(result: Pigeon.Result<Boolean>?) {
-        activityPluginBinding?.activity?.let {
+        activityPluginBinding?.activity?.let { activity ->
+
+            try {
+                receiver?.let { activity.unregisterReceiver(it) }
+            } catch (e: IllegalArgumentException) {
+                Log.d(TAG, e.toString())
+            }
+
             if (hasOAuthPermission()) {
-                Fitness.getConfigClient(it, GoogleSignIn.getAccountForExtension(it, fitnessOptions))
+                Fitness.getConfigClient(
+                    activity,
+                    GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
+                )
                     .disableFit()
                     .continueWithTask { _ ->
                         // https://github.com/android/fit-samples/issues/28
                         val signInOptions = GoogleSignInOptions.Builder()
                             .addExtension(fitnessOptions)
                             .build()
-                        GoogleSignIn.getClient(it, signInOptions).revokeAccess()
+                        GoogleSignIn.getClient(activity, signInOptions).revokeAccess()
                     }
                     .addOnFailureListener { e ->
                         if (e is ApiException && e.statusCode == CommonStatusCodes.SIGN_IN_REQUIRED) {
