@@ -55,48 +55,43 @@ class HealthConnectHostApiImpl(
             )
             return
         }
-
-        activityPluginBinding?.let { activityPluginBinding ->
-            val listener =
-                PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
-                    when (requestCode) {
-                        Permission.Code.ACTIVITY_RECOGNITION -> {
-                            val permissionGranted = grantResults.isNotEmpty() &&
-                                    grantResults[0] == PackageManager.PERMISSION_GRANTED
-                            val permissionStatus = when (permissionGranted) {
-                                true -> Pigeon.PermissionStatus.granted
-                                else -> Pigeon.PermissionStatus.denied
-                            }
-                            val permissionResult = Pigeon.PermissionResult.Builder()
-                                .setPermissionType(Pigeon.PermissionType.activityRecognition)
-                                .setPermissionStatus(permissionStatus)
-                                .build()
-                            if (requestInProgress) {
-                                requestInProgress = false
-                                result?.success(permissionResult)
-                            }
-                            return@RequestPermissionsResultListener permissionGranted
-                        }
-                        else -> {
-                            if (requestInProgress) {
-                                requestInProgress = false
-                                result?.error(Exception("Something went wrong! Error code could not be retrieved"))
-                            }
-                            return@RequestPermissionsResultListener false
-                        }
-                    }
-                }
-            activityPluginBinding.removeRequestPermissionsResultListener(listener)
-            activityPluginBinding.addRequestPermissionsResultListener(listener)
-
+        activityPluginBinding?.apply {
             ActivityCompat.requestPermissions(
-                activityPluginBinding.activity,
+                activity,
                 arrayOf(
                     Permission.Type.ACTIVITY_RECOGNITION_PERMISSION,
                     Permission.Type.BODY_SENSORS
                 ),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
+            addRequestPermissionsResultListener(PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
+                when (requestCode) {
+                    Permission.Code.ACTIVITY_RECOGNITION -> {
+                        val permissionGranted = grantResults.isNotEmpty() &&
+                                grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        val permissionStatus = when (permissionGranted) {
+                            true -> Pigeon.PermissionStatus.granted
+                            else -> Pigeon.PermissionStatus.denied
+                        }
+                        val permissionResult = Pigeon.PermissionResult.Builder()
+                            .setPermissionType(Pigeon.PermissionType.activityRecognition)
+                            .setPermissionStatus(permissionStatus)
+                            .build()
+                        if (requestInProgress) {
+                            requestInProgress = false
+                            result?.success(permissionResult)
+                        }
+                        return@RequestPermissionsResultListener true
+                    }
+                    else -> {
+                        if (requestInProgress) {
+                            requestInProgress = false
+                            result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                        }
+                        return@RequestPermissionsResultListener false
+                    }
+                }
+            })
             requestInProgress = true
             return
         }
@@ -128,38 +123,33 @@ class HealthConnectHostApiImpl(
             return
         }
 
-        activityPluginBinding?.let { activityPluginBinding ->
-            val listener =
-                PluginRegistry.ActivityResultListener { requestCode, resultCode, _ ->
-                    if (resultCode == Activity.RESULT_OK && requestCode == Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-                        val permissionResult = Pigeon.PermissionResult.Builder()
-                            .setPermissionType(Pigeon.PermissionType.oAuth)
-                            .setPermissionStatus(Pigeon.PermissionStatus.granted)
-                            .build()
-                        if (requestInProgress) {
-                            requestInProgress = false
-                            result?.success(permissionResult)
-                        }
-                        return@ActivityResultListener true
-                    }
-                    if (requestInProgress) {
-                        requestInProgress = false
-                        result?.error(Exception("Something went wrong! Error code could not be retrieved"))
-                    }
-                    return@ActivityResultListener false
-                }
-
-            activityPluginBinding.removeActivityResultListener(listener)
-            activityPluginBinding.addActivityResultListener(listener)
-
+        activityPluginBinding?.apply {
             val account =
-                GoogleSignIn.getAccountForExtension(activityPluginBinding.activity, fitnessOptions)
+                GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             GoogleSignIn.requestPermissions(
-                activityPluginBinding.activity,
+                activity,
                 Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
                 account,
                 fitnessOptions
             )
+            addActivityResultListener(PluginRegistry.ActivityResultListener { requestCode, resultCode, _ ->
+                if (resultCode == Activity.RESULT_OK && requestCode == Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+                    val permissionResult = Pigeon.PermissionResult.Builder()
+                        .setPermissionType(Pigeon.PermissionType.oAuth)
+                        .setPermissionStatus(Pigeon.PermissionStatus.granted)
+                        .build()
+                    if (requestInProgress) {
+                        requestInProgress = false
+                        result?.success(permissionResult)
+                    }
+                    return@ActivityResultListener true
+                }
+                if (requestInProgress) {
+                    requestInProgress = false
+                    result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                }
+                return@ActivityResultListener false
+            })
             requestInProgress = true
             return
         }
@@ -223,7 +213,6 @@ class HealthConnectHostApiImpl(
         }
         Log.e(TAG, "Activity was not properly attached")
     }
-
 
     override fun getHealthConnectData(result: Pigeon.Result<Pigeon.HealthConnectData>?) {
         activityPluginBinding?.activity?.let { activity ->

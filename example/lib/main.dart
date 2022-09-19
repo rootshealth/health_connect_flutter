@@ -116,27 +116,19 @@ class _MyAppState extends State<MyApp> {
               ),
               Text(
                   'Activity Recognition status: ${_activityRecognitionPermissionResult?.permissionStatus.toString()}'),
-              Text(
-                  'OAuth permission status: ${_oAuthPermissionResult?.permissionStatus.toString()}'),
               TextButton(
                   style: buttonStyle,
                   onPressed: () async {
                     final permissionResult =
                         await _healthConnectHostApi.requestActivityRecognitionPermission();
+                    await _healthConnectHostApi.requestActivityRecognitionPermission();
+                    await _healthConnectHostApi.requestActivityRecognitionPermission();
+                    await _healthConnectHostApi.requestActivityRecognitionPermission();
                     setState(() {
                       _activityRecognitionPermissionResult = permissionResult;
                     });
                   },
                   child: const Text("Request Activity Recognition permission")),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final permissionResult = await _healthConnectHostApi.requestOAuthPermission();
-                    setState(() {
-                      _oAuthPermissionResult = permissionResult;
-                    });
-                  },
-                  child: const Text("Request Google Fit OAuth permission")),
               TextButton(
                   style: buttonStyle,
                   onPressed: () async {
@@ -151,6 +143,20 @@ class _MyAppState extends State<MyApp> {
                     });
                   },
                   child: const Text("Check Activity Recognition permission")),
+              const SizedBox(
+                height: 30,
+              ),
+              Text(
+                  'OAuth permission status: ${_oAuthPermissionResult?.permissionStatus.toString()}'),
+              TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    final permissionResult = await _healthConnectHostApi.requestOAuthPermission();
+                    setState(() {
+                      _oAuthPermissionResult = permissionResult;
+                    });
+                  },
+                  child: const Text("Request Google Fit OAuth permission")),
               TextButton(
                   style: buttonStyle,
                   onPressed: () async {
@@ -166,12 +172,15 @@ class _MyAppState extends State<MyApp> {
                   child: const Text("Check OAuth permission")),
               TextButton(
                   style: buttonStyle,
-                  onPressed: () async => await _healthConnectHostApi.openSettings(),
-                  child: const Text("Open settings")),
-              TextButton(
-                  style: buttonStyle,
                   onPressed: () async => await _healthConnectHostApi.disconnect(),
                   child: const Text("Disconnect from Google Fit")),
+              const SizedBox(
+                height: 30,
+              ),
+              TextButton(
+                  style: buttonStyle,
+                  onPressed: () async => await _healthConnectHostApi.openSettings(),
+                  child: const Text("Open settings")),
               const Padding(
                 padding: EdgeInsets.only(top: 30),
                 child: Text("Data", style: titleStyle),
