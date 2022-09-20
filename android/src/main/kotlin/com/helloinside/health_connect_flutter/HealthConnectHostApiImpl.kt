@@ -28,6 +28,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 
+class OAuthPermissionException : Exception("OAuth permission not granted! Please request permission first!")
+
 class HealthConnectHostApiImpl(
     var activityPluginBinding: ActivityPluginBinding?,
     var healthConnectFlutterApi: Pigeon.HealthConnectFlutterApi?
@@ -49,8 +51,8 @@ class HealthConnectHostApiImpl(
         if (hasActivityRecognitionPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
-                    .setPermissionType(Pigeon.PermissionType.activityRecognition)
-                    .setPermissionStatus(Pigeon.PermissionStatus.granted)
+                    .setPermissionType(Pigeon.PermissionType.ACTIVITY_RECOGNITION)
+                    .setPermissionStatus(Pigeon.PermissionStatus.GRANTED)
                     .build()
             )
             return
@@ -70,11 +72,11 @@ class HealthConnectHostApiImpl(
                         val permissionGranted = grantResults.isNotEmpty() &&
                                 grantResults[0] == PackageManager.PERMISSION_GRANTED
                         val permissionStatus = when (permissionGranted) {
-                            true -> Pigeon.PermissionStatus.granted
-                            else -> Pigeon.PermissionStatus.denied
+                            true -> Pigeon.PermissionStatus.GRANTED
+                            else -> Pigeon.PermissionStatus.DENIED
                         }
                         val permissionResult = Pigeon.PermissionResult.Builder()
-                            .setPermissionType(Pigeon.PermissionType.activityRecognition)
+                            .setPermissionType(Pigeon.PermissionType.ACTIVITY_RECOGNITION)
                             .setPermissionStatus(permissionStatus)
                             .build()
                         if (requestInProgress) {
@@ -116,8 +118,8 @@ class HealthConnectHostApiImpl(
         if (hasOAuthPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
-                    .setPermissionType(Pigeon.PermissionType.oAuth)
-                    .setPermissionStatus(Pigeon.PermissionStatus.granted)
+                    .setPermissionType(Pigeon.PermissionType.O_AUTH)
+                    .setPermissionStatus(Pigeon.PermissionStatus.GRANTED)
                     .build()
             )
             return
@@ -135,8 +137,8 @@ class HealthConnectHostApiImpl(
             addActivityResultListener(PluginRegistry.ActivityResultListener { requestCode, resultCode, _ ->
                 if (resultCode == Activity.RESULT_OK && requestCode == Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
                     val permissionResult = Pigeon.PermissionResult.Builder()
-                        .setPermissionType(Pigeon.PermissionType.oAuth)
-                        .setPermissionStatus(Pigeon.PermissionStatus.granted)
+                        .setPermissionType(Pigeon.PermissionType.O_AUTH)
+                        .setPermissionStatus(Pigeon.PermissionStatus.GRANTED)
                         .build()
                     if (requestInProgress) {
                         requestInProgress = false
@@ -222,12 +224,13 @@ class HealthConnectHostApiImpl(
                 .build()
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-                GoogleSignIn.requestPermissions(
-                    activity,
-                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                    account,
-                    fitnessOptions
-                )
+                result?.error(OAuthPermissionException())
+//                GoogleSignIn.requestPermissions(
+//                    activity,
+//                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
+//                    account,
+//                    fitnessOptions
+//                )
                 return
             }
             val endDateTime = LocalDateTime.now()
@@ -298,12 +301,13 @@ class HealthConnectHostApiImpl(
 
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-                GoogleSignIn.requestPermissions(
-                    activity,
-                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                    account,
-                    fitnessOptions
-                )
+                result?.error(OAuthPermissionException())
+//                GoogleSignIn.requestPermissions(
+//                    activity,
+//                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
+//                    account,
+//                    fitnessOptions
+//                )
                 return
             }
 
@@ -360,6 +364,7 @@ class HealthConnectHostApiImpl(
 
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+                Log.d(TAG, "Permission not granted! Please request permission first!")
 //                GoogleSignIn.requestPermissions(
 //                    activity,
 //                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,

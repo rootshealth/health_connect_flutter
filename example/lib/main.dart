@@ -121,9 +121,6 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     final permissionResult =
                         await _healthConnectHostApi.requestActivityRecognitionPermission();
-                    await _healthConnectHostApi.requestActivityRecognitionPermission();
-                    await _healthConnectHostApi.requestActivityRecognitionPermission();
-                    await _healthConnectHostApi.requestActivityRecognitionPermission();
                     setState(() {
                       _activityRecognitionPermissionResult = permissionResult;
                     });

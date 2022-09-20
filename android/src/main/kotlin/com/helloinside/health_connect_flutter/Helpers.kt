@@ -7,6 +7,7 @@ import com.google.android.gms.fitness.data.DataSet
 import com.google.android.gms.fitness.data.Session
 import java.time.Instant
 import java.time.ZoneId
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun logSession(session: Session) {
@@ -79,9 +80,9 @@ fun Session.toHealthConnectWorkoutData(): Pigeon.HealthConnectWorkoutData {
     val endTimeTimeInSeconds = getEndTime(TimeUnit.SECONDS)
     val durationInSeconds = endTimeTimeInSeconds - startTimeInSeconds
 
-    var activityType = Pigeon.WorkoutActivityType.unknown
+    var activityType = Pigeon.WorkoutActivityType.UNKNOWN
     try {
-        activityType = Pigeon.WorkoutActivityType.valueOf(activity)
+        activityType = Pigeon.WorkoutActivityType.valueOf(activity.uppercase(Locale.getDefault()))
     } catch (e: Exception) {
         print("Unknown workout: $e")
     }
