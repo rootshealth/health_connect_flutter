@@ -163,7 +163,6 @@ class Predicate {
 
 /// startTimestamp, endTimestamp end duration are represented in seconds
 class HealthConnectWorkoutData {
-  final String? uuid;
   final String? identifier;
   final String? name;
   final String? description;
@@ -173,7 +172,6 @@ class HealthConnectWorkoutData {
   final int? duration;
 
   const HealthConnectWorkoutData({
-    required this.uuid,
     required this.identifier,
     required this.name,
     required this.description,

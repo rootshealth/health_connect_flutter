@@ -222,7 +222,6 @@ class Predicate {
 /// startTimestamp, endTimestamp end duration are represented in seconds
 class HealthConnectWorkoutData {
   HealthConnectWorkoutData({
-    this.uuid,
     this.identifier,
     this.name,
     this.description,
@@ -232,7 +231,6 @@ class HealthConnectWorkoutData {
     this.duration,
   });
 
-  String? uuid;
   String? identifier;
   String? name;
   String? description;
@@ -243,7 +241,6 @@ class HealthConnectWorkoutData {
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
-    pigeonMap['uuid'] = uuid;
     pigeonMap['identifier'] = identifier;
     pigeonMap['name'] = name;
     pigeonMap['description'] = description;
@@ -257,7 +254,6 @@ class HealthConnectWorkoutData {
   static HealthConnectWorkoutData decode(Object message) {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return HealthConnectWorkoutData(
-      uuid: pigeonMap['uuid'] as String?,
       identifier: pigeonMap['identifier'] as String?,
       name: pigeonMap['name'] as String?,
       description: pigeonMap['description'] as String?,

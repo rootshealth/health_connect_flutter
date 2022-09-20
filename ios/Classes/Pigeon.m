@@ -124,8 +124,7 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 @end
 
 @implementation HealthConnectWorkoutData
-+ (instancetype)makeWithUuid:(nullable NSString *)uuid
-    identifier:(nullable NSString *)identifier
++ (instancetype)makeWithIdentifier:(nullable NSString *)identifier
     name:(nullable NSString *)name
     description:(nullable NSString *)description
     activityType:(WorkoutActivityType)activityType
@@ -133,7 +132,6 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
     endTimestamp:(nullable NSNumber *)endTimestamp
     duration:(nullable NSNumber *)duration {
   HealthConnectWorkoutData* pigeonResult = [[HealthConnectWorkoutData alloc] init];
-  pigeonResult.uuid = uuid;
   pigeonResult.identifier = identifier;
   pigeonResult.name = name;
   pigeonResult.description = description;
@@ -145,7 +143,6 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 }
 + (HealthConnectWorkoutData *)fromMap:(NSDictionary *)dict {
   HealthConnectWorkoutData *pigeonResult = [[HealthConnectWorkoutData alloc] init];
-  pigeonResult.uuid = GetNullableObject(dict, @"uuid");
   pigeonResult.identifier = GetNullableObject(dict, @"identifier");
   pigeonResult.name = GetNullableObject(dict, @"name");
   pigeonResult.description = GetNullableObject(dict, @"description");
@@ -158,7 +155,6 @@ static id GetNullableObjectAtIndex(NSArray* array, NSInteger key) {
 + (nullable HealthConnectWorkoutData *)nullableFromMap:(NSDictionary *)dict { return (dict) ? [HealthConnectWorkoutData fromMap:dict] : nil; }
 - (NSDictionary *)toMap {
   return @{
-    @"uuid" : (self.uuid ?: [NSNull null]),
     @"identifier" : (self.identifier ?: [NSNull null]),
     @"name" : (self.name ?: [NSNull null]),
     @"description" : (self.description ?: [NSNull null]),

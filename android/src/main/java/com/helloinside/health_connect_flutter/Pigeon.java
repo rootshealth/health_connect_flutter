@@ -341,12 +341,6 @@ public class Pigeon {
    * Generated class from Pigeon that represents data sent in messages.
    */
   public static class HealthConnectWorkoutData {
-    private @Nullable String uuid;
-    public @Nullable String getUuid() { return uuid; }
-    public void setUuid(@Nullable String setterArg) {
-      this.uuid = setterArg;
-    }
-
     private @Nullable String identifier;
     public @Nullable String getIdentifier() { return identifier; }
     public void setIdentifier(@Nullable String setterArg) {
@@ -390,11 +384,6 @@ public class Pigeon {
     }
 
     public static final class Builder {
-      private @Nullable String uuid;
-      public @NonNull Builder setUuid(@Nullable String setterArg) {
-        this.uuid = setterArg;
-        return this;
-      }
       private @Nullable String identifier;
       public @NonNull Builder setIdentifier(@Nullable String setterArg) {
         this.identifier = setterArg;
@@ -432,7 +421,6 @@ public class Pigeon {
       }
       public @NonNull HealthConnectWorkoutData build() {
         HealthConnectWorkoutData pigeonReturn = new HealthConnectWorkoutData();
-        pigeonReturn.setUuid(uuid);
         pigeonReturn.setIdentifier(identifier);
         pigeonReturn.setName(name);
         pigeonReturn.setDescription(description);
@@ -445,7 +433,6 @@ public class Pigeon {
     }
     @NonNull Map<String, Object> toMap() {
       Map<String, Object> toMapResult = new HashMap<>();
-      toMapResult.put("uuid", uuid);
       toMapResult.put("identifier", identifier);
       toMapResult.put("name", name);
       toMapResult.put("description", description);
@@ -457,8 +444,6 @@ public class Pigeon {
     }
     static @NonNull HealthConnectWorkoutData fromMap(@NonNull Map<String, Object> map) {
       HealthConnectWorkoutData pigeonResult = new HealthConnectWorkoutData();
-      Object uuid = map.get("uuid");
-      pigeonResult.setUuid((String)uuid);
       Object identifier = map.get("identifier");
       pigeonResult.setIdentifier((String)identifier);
       Object name = map.get("name");

@@ -175,15 +175,13 @@ typedef NS_ENUM(NSUInteger, WorkoutActivityType) {
 
 /// startTimestamp, endTimestamp end duration are represented in seconds
 @interface HealthConnectWorkoutData : NSObject
-+ (instancetype)makeWithUuid:(nullable NSString *)uuid
-    identifier:(nullable NSString *)identifier
++ (instancetype)makeWithIdentifier:(nullable NSString *)identifier
     name:(nullable NSString *)name
     description:(nullable NSString *)description
     activityType:(WorkoutActivityType)activityType
     startTimestamp:(nullable NSNumber *)startTimestamp
     endTimestamp:(nullable NSNumber *)endTimestamp
     duration:(nullable NSNumber *)duration;
-@property(nonatomic, copy, nullable) NSString * uuid;
 @property(nonatomic, copy, nullable) NSString * identifier;
 @property(nonatomic, copy, nullable) NSString * name;
 @property(nonatomic, copy, nullable) NSString * description;
