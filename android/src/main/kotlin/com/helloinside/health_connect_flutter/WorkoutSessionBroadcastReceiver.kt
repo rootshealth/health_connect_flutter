@@ -17,7 +17,7 @@ class WorkoutSessionBroadcastReceiver : BroadcastReceiver() {
 
     override
     fun onReceive(context: Context?, intent: Intent?) {
-        Timber.tag(TAG).d("onReceive: %s", intent.toString())
+        Timber.tag(TAG).d("onReceive: %s", intent?.toString())
         intent?.let {
             Session.extract(intent)?.let {
                 logSession(it)
