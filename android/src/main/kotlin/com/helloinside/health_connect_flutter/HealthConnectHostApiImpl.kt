@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -24,11 +23,13 @@ import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.request.SessionReadRequest
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 
-class OAuthPermissionException : Exception("OAuth permission not granted! Please request permission first!")
+class OAuthPermissionException :
+    Exception("OAuth permission not granted! Please request permission first!")
 
 class HealthConnectHostApiImpl(
     var activityPluginBinding: ActivityPluginBinding?,
@@ -45,7 +46,7 @@ class HealthConnectHostApiImpl(
     private var receiver: BroadcastReceiver? = null
 
     override fun requestActivityRecognitionPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
-        Log.e(TAG, "requestActivityRecognitionPermission")
+        Timber.tag(TAG).d("requestActivityRecognitionPermission")
         // https://stackoverflow.com/questions/65666404/java-lang-illegalstateexception-reply-already-submitted-when-trying-to-call
         var requestInProgress = false
         if (hasActivityRecognitionPermission()) {
@@ -97,23 +98,23 @@ class HealthConnectHostApiImpl(
             requestInProgress = true
             return
         }
-        Log.e(TAG, "Activity was not attached")
+        Timber.tag(TAG).e("requestActivityRecognitionPermission: Activity was not attached")
     }
 
     override fun hasActivityRecognitionPermission(): Boolean {
-        Log.e(TAG, "hasActivityRecognitionPermission")
+        Timber.tag(TAG).d("hasActivityRecognitionPermission")
         activityPluginBinding?.activity?.let {
             return ContextCompat.checkSelfPermission(
                 it,
                 Permission.Type.ACTIVITY_RECOGNITION_PERMISSION
             ) == PackageManager.PERMISSION_GRANTED
         }
-        Log.e(TAG, "Activity was not properly attached")
+        Timber.tag(TAG).e("hasActivityRecognitionPermission: Activity was not attached")
         return false
     }
 
     override fun requestOAuthPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
-        Log.e(TAG, "requestOAuthPermission")
+        Timber.tag(TAG).d("requestOAuthPermission")
         var requestInProgress = false
         if (hasOAuthPermission()) {
             result?.success(
@@ -148,26 +149,30 @@ class HealthConnectHostApiImpl(
                 }
                 if (requestInProgress) {
                     requestInProgress = false
-                    result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                    val error = "Something went wrong! Error code could not be retrieved";
+                    Timber.tag(TAG).e("requestOAuthPermission: $error")
+                    result?.error(Exception(error))
                 }
                 return@ActivityResultListener false
             })
             requestInProgress = true
             return
         }
-        Log.e(TAG, "Activity was not attached")
+        Timber.tag(TAG).e("requestOAuthPermission: Activity was not attached")
     }
 
     override fun hasOAuthPermission(): Boolean {
+        Timber.tag(TAG).d("hasOAuthPermission")
         activityPluginBinding?.activity?.let { activity ->
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             return GoogleSignIn.hasPermissions(account, fitnessOptions)
         }
-        Log.e(TAG, "Activity was not properly attached")
+        Timber.tag(TAG).e("hasOAuthPermission: Activity was not attached")
         return false
     }
 
     override fun openSettings() {
+        Timber.tag(TAG).d("openSettings")
         activityPluginBinding?.activity?.let {
             val intent = Intent()
             val uri = Uri.fromParts("package", it.packageName, null)
@@ -175,16 +180,17 @@ class HealthConnectHostApiImpl(
             it.startActivity(intent)
             return
         }
-        Log.e(TAG, "Activity was not properly attached")
+        Timber.tag(TAG).e("openSettings: Activity was not attached")
     }
 
     override fun disconnect(result: Pigeon.Result<Boolean>?) {
+        Timber.tag(TAG).d("disconnect")
         activityPluginBinding?.activity?.let { activity ->
 
             try {
                 receiver?.let { activity.unregisterReceiver(it) }
             } catch (e: IllegalArgumentException) {
-                Log.d(TAG, e.toString())
+                Timber.tag(TAG).d(e.toString())
             }
 
             if (hasOAuthPermission()) {
@@ -202,10 +208,11 @@ class HealthConnectHostApiImpl(
                     }
                     .addOnFailureListener { e ->
                         if (e is ApiException && e.statusCode == CommonStatusCodes.SIGN_IN_REQUIRED) {
-                            Log.d(TAG, "Disabled Google Fit")
+                            Timber.tag(TAG).d("disconnect: Disabled Google Fit")
                             result?.success(true)
                         } else {
-                            Log.d(TAG, "There was an error disabling Google Fit", e)
+                            Timber.tag(TAG)
+                                .e(e, "disconnect: There was an error disabling Google Fit")
                             result?.error(Exception(e))
                         }
                     }
@@ -213,10 +220,11 @@ class HealthConnectHostApiImpl(
             }
             result?.success(true)
         }
-        Log.e(TAG, "Activity was not properly attached")
+        Timber.tag(TAG).e("disconnect: Activity was not attached")
     }
 
     override fun getHealthConnectData(result: Pigeon.Result<Pigeon.HealthConnectData>?) {
+        Timber.tag(TAG).d("getHealthConnectData")
         activityPluginBinding?.activity?.let { activity ->
             val fitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
@@ -249,8 +257,8 @@ class HealthConnectHostApiImpl(
             Fitness.getHistoryClient(activity, account)
                 .readData(readRequest)
                 .addOnSuccessListener {
-                    //Log.d(TAG, it.dataSets.toString())
-                    //Log.d(TAG, it.buckets.toString())
+                    //Timber.tag(TAG).d(it.dataSets.toString())
+                    //Timber.tag(TAG).d(it.buckets.toString())
 
                     val healthConnectDataBuilder = Pigeon.HealthConnectData.Builder()
 
@@ -277,22 +285,24 @@ class HealthConnectHostApiImpl(
                         logBuckets(heartBuckets)
                     }
 
-                    val healthConnectData = healthConnectDataBuilder.build();
+                    val healthConnectData = healthConnectDataBuilder.build()
+                    logHealthData(healthConnectData)
                     result?.success(healthConnectData)
                 }
                 .addOnFailureListener {
-                    Log.e(TAG, "OnFailure()", it)
+                    Timber.tag(TAG).e(it, "getHealthConnectData: OnFailure()")
                     result?.error(it)
                 }
             return
         }
-        Log.e(TAG, "Activity was not attached")
+        Timber.tag(TAG).e("getHealthConnectData: Activity was not attached")
     }
 
     override fun getHealthConnectWorkoutsData(
         predicate: Pigeon.Predicate,
         result: Pigeon.Result<List<Pigeon.HealthConnectWorkoutData>>?
     ) {
+        Timber.tag(TAG).d("getHealthConnectWorkoutsData")
         var requestInProgress = false
         activityPluginBinding?.activity?.let { activity ->
             val fitnessOptions = FitnessOptions.builder()
@@ -329,7 +339,10 @@ class HealthConnectHostApiImpl(
                 .addOnSuccessListener { response ->
                     requestInProgress = true
                     val sessions = response.sessions
-                    Log.d(TAG, "Number of returned sessions is: ${sessions.size}")
+                    Timber.tag(TAG).d(
+                        "getHealthConnectWorkoutsData: Number of returned sessions is: %s",
+                        sessions.size
+                    )
                     val healthConnectWorkouts = mutableListOf<Pigeon.HealthConnectWorkoutData>()
                     for (session in sessions) {
                         logSession(session)
@@ -345,7 +358,7 @@ class HealthConnectHostApiImpl(
                     }
                 }
                 .addOnFailureListener {
-                    Log.e(TAG, "OnFailure()", it)
+                    Timber.tag(TAG).e(it, "getHealthConnectWorkoutsData: OnFailure()")
                     if (requestInProgress) {
                         requestInProgress = false
                         result?.error(it)
@@ -353,10 +366,11 @@ class HealthConnectHostApiImpl(
                 }
             return
         }
-        Log.e(TAG, "Activity was not attached")
+        Timber.tag(TAG).e("getHealthConnectWorkoutsData: Activity was not attached")
     }
 
     override fun subscribeToHealthConnectWorkoutsData() {
+        Timber.tag(TAG).d("subscribeToHealthConnectWorkoutsData: started")
         activityPluginBinding?.activity?.let { activity ->
             val fitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_WORKOUT_EXERCISE, FitnessOptions.ACCESS_READ)
@@ -364,7 +378,8 @@ class HealthConnectHostApiImpl(
 
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-                Log.d(TAG, "Permission not granted! Please request permission first!")
+                Timber.tag(TAG)
+                    .e("subscribeToHealthConnectWorkoutsData: Permission not granted! Please request permission first!")
 //                GoogleSignIn.requestPermissions(
 //                    activity,
 //                    Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
@@ -378,13 +393,21 @@ class HealthConnectHostApiImpl(
             val pendingIntent =
                 PendingIntent.getBroadcast(activity, 0, intent, PendingIntent.FLAG_MUTABLE)
             Fitness.getSessionsClient(activity, account).registerForSessions(pendingIntent)
+            Timber.tag(TAG)
+                .d(
+                    "subscribeToHealthConnectWorkoutsData: registerForSessions with intent: %s",
+                    pendingIntent.toString()
+                )
 
             try {
                 if (receiver == null) {
                     receiver = object : BroadcastReceiver() {
                         override fun onReceive(context: Context?, intent: Intent?) {
                             val session = intent?.getParcelableExtra<Session>(intentExtraName)
-                            Log.e(TAG, "BroadcastReceiver: session: $session")
+                            Timber.tag(TAG).d(
+                                "subscribeToHealthConnectWorkoutsData: BroadcastReceiver: session: %s",
+                                session
+                            )
                             session?.let {
                                 val reply = Pigeon.HealthConnectFlutterApi.Reply<Void> { }
                                 val healthConnectWorkoutData = it.toHealthConnectWorkoutData()
@@ -395,16 +418,22 @@ class HealthConnectHostApiImpl(
                             }
                         }
                     }
+                    Timber.tag(TAG)
+                        .d("subscribeToHealthConnectWorkoutsData: BroadcastReceiver created");
                 } else {
                     activity.unregisterReceiver(receiver)
+                    Timber.tag(TAG)
+                        .d("subscribeToHealthConnectWorkoutsData: BroadcastReceiver unregistered");
                 }
                 activity.registerReceiver(receiver, intentFilter)
+                Timber.tag(TAG)
+                    .d("subscribeToHealthConnectWorkoutsData: BroadcastReceiver registered");
             } catch (e: IllegalArgumentException) {
-                Log.d(TAG, e.toString())
+                Timber.tag(TAG).d(e.toString())
             }
             return
         }
-        Log.e(TAG, "Activity was not attached")
+        Timber.tag(TAG).e("subscribeToHealthConnectWorkoutsData: Activity was not attached")
     }
 
 }

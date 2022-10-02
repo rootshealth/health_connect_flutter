@@ -5,52 +5,42 @@ import com.google.android.gms.fitness.data.Bucket
 import com.google.android.gms.fitness.data.DataPoint
 import com.google.android.gms.fitness.data.DataSet
 import com.google.android.gms.fitness.data.Session
+import com.helloinside.health_connect_flutter.Pigeon.HealthConnectData
+import timber.log.Timber
 import java.time.Instant
 import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun logSession(session: Session) {
-//    if (!BuildConfig.DEBUG) {
-//        return
-//    }
-    Log.d(TAG, "Session: ")
-    Log.d(TAG, "\tName: ${session.name}")
-    Log.d(TAG, "\tIdentifier: ${session.identifier}")
-    Log.d(TAG, "\tActivity: ${session.activity}")
-    Log.d(TAG, "\tDescription: ${session.description}")
-    Log.d(TAG, "\tStart Time: ${session.getStartTime(TimeUnit.MINUTES)}")
-    Log.d(TAG, "\tEnd Time: ${session.getEndTime(TimeUnit.MINUTES)}")
+    Timber.tag(TAG).d("Session: ")
+    Timber.tag(TAG).d("\t" + "Name: " + session.name)
+    Timber.tag(TAG).d("\t" + "Identifier: " + session.identifier)
+    Timber.tag(TAG).d("\t" + "Activity: " + session.activity)
+    Timber.tag(TAG).d("\t" + "Description: " + session.description)
+    Timber.tag(TAG).d("\t" + "Start Time: " + session.getStartTime(TimeUnit.MINUTES))
+    Timber.tag(TAG).d("\t" + "End Time: " + session.getEndTime(TimeUnit.MINUTES))
 }
 
 fun logDataSets(dataSets: List<DataSet>) {
-//    if (!BuildConfig.DEBUG) {
-//        return
-//    }
     for (dataSet in dataSets) {
         logDataSet(dataSet)
     }
 }
 
 fun logDataSet(dataSet: DataSet) {
-//    if (!BuildConfig.DEBUG) {
-//        return
-//    }
     for (dataPoint in dataSet.dataPoints) {
         logDataPoint(dataPoint)
     }
 }
 
 fun logDataPoint(dataPoint: DataPoint) {
-//    if (!BuildConfig.DEBUG) {
-//        return
-//    }
-    Log.d(TAG, "Data point:")
-    Log.d(TAG, "\tType: ${dataPoint.dataType.name}")
-    Log.d(TAG, "\tStart: ${dataPoint.getStartTimeString()}")
-    Log.d(TAG, "\tEnd: ${dataPoint.getEndTimeString()}")
+    Timber.tag(TAG).d("Data point:")
+    Timber.tag(TAG).d("\t" + "Type: " + dataPoint.dataType.name)
+    Timber.tag(TAG).d("\t" + "Start: " + dataPoint.getStartTimeString())
+    Timber.tag(TAG).d("\t" + "End: " + dataPoint.getEndTimeString())
     for (field in dataPoint.dataType.fields) {
-        Log.d(TAG, "\tField: ${field.name} Value: ${dataPoint.getValue(field)}")
+        Timber.tag(TAG).d("\t" + "Field: " + field.name + " Value: " + dataPoint.getValue(field))
     }
 }
 
@@ -73,6 +63,12 @@ fun logBucket(bucket: Bucket) {
     bucket.session?.let {
         logSession(it)
     }
+}
+
+fun logHealthData(healthData: HealthConnectData) {
+    Timber.tag(TAG).d("HealthConnectData: ")
+    Timber.tag(TAG).d("\t" + "Height: " + healthData.height)
+    Timber.tag(TAG).d("\t" + "Weight: " + healthData.weight)
 }
 
 fun Session.toHealthConnectWorkoutData(): Pigeon.HealthConnectWorkoutData {

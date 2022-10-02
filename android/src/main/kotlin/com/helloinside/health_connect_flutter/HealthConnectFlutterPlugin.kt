@@ -4,6 +4,7 @@ import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import timber.log.Timber
 
 class HealthConnectFlutterPlugin : FlutterPlugin, ActivityAware {
 
@@ -11,6 +12,10 @@ class HealthConnectFlutterPlugin : FlutterPlugin, ActivityAware {
     private lateinit var healthConnectFlutterApi: Pigeon.HealthConnectFlutterApi
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        // TODO enable once Google Fit is ready
+        //if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        //}
         healthConnectHostApiImpl = HealthConnectHostApiImpl(null, null)
         Pigeon.HealthConnectHostApi.setup(
             binding.binaryMessenger,

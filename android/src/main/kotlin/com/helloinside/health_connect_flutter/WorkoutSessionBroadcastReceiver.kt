@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import com.google.android.gms.fitness.data.Session
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 const val intentAction = "workout_session_broadcast_action"
@@ -16,7 +17,7 @@ class WorkoutSessionBroadcastReceiver : BroadcastReceiver() {
 
     override
     fun onReceive(context: Context?, intent: Intent?) {
-        Log.e(TAG, "onReceive: ${intent.toString()}")
+        Timber.tag(TAG).d("onReceive: %s", intent.toString())
         intent?.let {
             Session.extract(intent)?.let {
                 logSession(it)
