@@ -1,13 +1,22 @@
 package com.helloinside.health_connect_flutter
 
 import android.Manifest
+import android.os.Build
 
 const val TAG = "health_connect_plugin"
 
 class Permission {
 
     object Type {
-        const val ACTIVITY_RECOGNITION_PERMISSION = Manifest.permission.ACTIVITY_RECOGNITION
+        private const val ACTIVITY_RECOGNITION_PERMISSION_API_28 = Manifest.permission.ACTIVITY_RECOGNITION
+        private const val ACTIVITY_RECOGNITION_PERMISSION_API_27 =
+            "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
+
+        // https://developer.android.com/about/versions/10/privacy/changes
+        // ACTIVITY_RECOGNITION_PERMISSION is automatically granted for SDK < 28
+        val ACTIVITY_RECOGNITION_PERMISSION =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) ACTIVITY_RECOGNITION_PERMISSION_API_28 else ACTIVITY_RECOGNITION_PERMISSION_API_27
+
         const val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
         const val BODY_SENSORS = Manifest.permission.BODY_SENSORS
     }

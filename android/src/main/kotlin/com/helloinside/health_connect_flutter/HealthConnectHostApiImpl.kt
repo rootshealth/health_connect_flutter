@@ -60,19 +60,12 @@ class HealthConnectHostApiImpl(
             return
         }
         activityPluginBinding?.apply {
-            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            ActivityCompat.requestPermissions(
+                activity,
                 arrayOf(
                     Permission.Type.ACTIVITY_RECOGNITION_PERMISSION,
                     Permission.Type.BODY_SENSORS
-                )
-            else
-            // https://developer.android.com/about/versions/10/privacy/changes
-            // ACTIVITY_RECOGNITION_PERMISSION is automatically granted for SDK < 28
-                arrayOf(Permission.Type.BODY_SENSORS)
-
-            ActivityCompat.requestPermissions(
-                activity,
-                permissions,
+                ),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
             addRequestPermissionsResultListener(PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
