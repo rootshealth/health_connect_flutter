@@ -11,9 +11,9 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun logSession(session: Session) {
-    if (!BuildConfig.DEBUG) {
-        return
-    }
+//    if (!BuildConfig.DEBUG) {
+//        return
+//    }
     Log.d(TAG, "Session: ")
     Log.d(TAG, "\tName: ${session.name}")
     Log.d(TAG, "\tIdentifier: ${session.identifier}")
@@ -24,27 +24,27 @@ fun logSession(session: Session) {
 }
 
 fun logDataSets(dataSets: List<DataSet>) {
-    if (!BuildConfig.DEBUG) {
-        return
-    }
+//    if (!BuildConfig.DEBUG) {
+//        return
+//    }
     for (dataSet in dataSets) {
         logDataSet(dataSet)
     }
 }
 
 fun logDataSet(dataSet: DataSet) {
-    if (!BuildConfig.DEBUG) {
-        return
-    }
+//    if (!BuildConfig.DEBUG) {
+//        return
+//    }
     for (dataPoint in dataSet.dataPoints) {
         logDataPoint(dataPoint)
     }
 }
 
 fun logDataPoint(dataPoint: DataPoint) {
-    if (!BuildConfig.DEBUG) {
-        return
-    }
+//    if (!BuildConfig.DEBUG) {
+//        return
+//    }
     Log.d(TAG, "Data point:")
     Log.d(TAG, "\tType: ${dataPoint.dataType.name}")
     Log.d(TAG, "\tStart: ${dataPoint.getStartTimeString()}")
@@ -55,9 +55,9 @@ fun logDataPoint(dataPoint: DataPoint) {
 }
 
 fun logBuckets(buckets: List<Bucket>) {
-    if (!BuildConfig.DEBUG) {
-        return
-    }
+//    if (!BuildConfig.DEBUG) {
+//        return
+//    }
     Log.d(TAG, "Number of buckets: ${buckets.size}")
     for (bucket in buckets) {
         logBucket(bucket)

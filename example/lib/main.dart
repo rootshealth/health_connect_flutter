@@ -14,7 +14,6 @@ class HealthConnectFlutterApiImpl implements HealthConnectFlutterApi {
   @override
   void onWorkoutDataUpdated(HealthConnectWorkoutData healthConnectWorkoutData) {
     final info = '''HealthConnectWorkoutData
-    Uuid: ${healthConnectWorkoutData.uuid}
     Identifier: ${healthConnectWorkoutData.identifier}
     Name: ${healthConnectWorkoutData.name}
     Description: ${healthConnectWorkoutData.description}

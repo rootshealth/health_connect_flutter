@@ -20,7 +20,7 @@ flutter pub run pigeon --input pigeon/health_connect_plugin_api.dart \
 
 or
 
-/Users/dominik.koscica/fvm/versions/3.0.2/bin/flutter pub run pigeon --input pigeon/health_connect_plugin_api.dart \
+/Users/dominik.koscica/fvm/versions/3.3.3/bin/flutter pub run pigeon --input pigeon/health_connect_plugin_api.dart \
 --dart_out lib/health_connect_plugin.dart \
 --objc_header_out ios/Classes/Pigeon.h \
 --objc_source_out ios/Classes/Pigeon.m \
