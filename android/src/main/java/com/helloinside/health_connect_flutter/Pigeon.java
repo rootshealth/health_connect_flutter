@@ -34,7 +34,8 @@ public class Pigeon {
 
   public enum PermissionType {
     ACTIVITY_RECOGNITION(0),
-    O_AUTH(1);
+    BODY_SENSORS(1),
+    O_AUTH(2);
 
     private int index;
     private PermissionType(final int index) {
@@ -519,8 +520,9 @@ public class Pigeon {
    * Generated interface from Pigeon that represents a handler of messages from Flutter.
    */
   public interface HealthConnectHostApi {
-    void requestActivityRecognitionPermission(Result<PermissionResult> result);
+    void requestPermissions(Result<PermissionResult> result);
     @NonNull Boolean hasActivityRecognitionPermission();
+    @NonNull Boolean hasBodySensorsPermission();
     void requestOAuthPermission(Result<PermissionResult> result);
     @NonNull Boolean hasOAuthPermission();
     void openSettings();
@@ -538,7 +540,7 @@ public class Pigeon {
     static void setup(BinaryMessenger binaryMessenger, HealthConnectHostApi api) {
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.requestActivityRecognitionPermission", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.requestPermissions", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -554,7 +556,7 @@ public class Pigeon {
                 }
               };
 
-              api.requestActivityRecognitionPermission(resultCallback);
+              api.requestPermissions(resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
@@ -573,6 +575,25 @@ public class Pigeon {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               Boolean output = api.hasActivityRecognitionPermission();
+              wrapped.put("result", output);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.HealthConnectHostApi.hasBodySensorsPermission", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              Boolean output = api.hasBodySensorsPermission();
               wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {

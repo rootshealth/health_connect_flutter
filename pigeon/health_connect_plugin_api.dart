@@ -2,7 +2,7 @@ import 'package:pigeon/pigeon.dart';
 
 enum PermissionStatus { granted, denied }
 
-enum PermissionType { activityRecognition, oAuth }
+enum PermissionType { activityRecognition, bodySensors, oAuth }
 
 enum WorkoutActivityType {
   aerobics("aerobics"),
@@ -186,9 +186,11 @@ class HealthConnectWorkoutData {
 @HostApi()
 abstract class HealthConnectHostApi {
   @async
-  PermissionResult requestActivityRecognitionPermission();
+  PermissionResult requestPermissions();
 
   bool hasActivityRecognitionPermission();
+
+  bool hasBodySensorsPermission();
 
   @async
   PermissionResult requestOAuthPermission();

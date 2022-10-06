@@ -41,8 +41,11 @@ class _MyAppState extends State<MyApp> {
   final _healthConnectHostApi = HealthConnectHostApi();
 
   String? _packageName;
+  PermissionResult? _permissionsResult;
   PermissionResult? _activityRecognitionPermissionResult;
+  PermissionResult? _bodySensorsPermissionResult;
   PermissionResult? _oAuthPermissionResult;
+
   HealthConnectData? _healthConnectData;
   List<HealthConnectWorkoutData?>? _healthConnectWorkoutsData;
 
@@ -104,112 +107,130 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Package name', style: titleStyle),
-              Text('$_packageName', textAlign: TextAlign.center),
-              const Padding(
-                padding: EdgeInsets.only(top: 30),
-                child: Text("Permissions", style: titleStyle),
-              ),
-              Text(
-                  'Activity Recognition status: ${_activityRecognitionPermissionResult?.permissionStatus.toString()}'),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final permissionResult =
-                        await _healthConnectHostApi.requestActivityRecognitionPermission();
-                    setState(() {
-                      _activityRecognitionPermissionResult = permissionResult;
-                    });
-                  },
-                  child: const Text("Request Activity Recognition permission")),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final result = await _healthConnectHostApi.hasActivityRecognitionPermission();
-                    final permissionStatus =
-                        result ? PermissionStatus.granted : PermissionStatus.denied;
-                    final permissionResult = PermissionResult(
-                        permissionType: PermissionType.activityRecognition,
-                        permissionStatus: permissionStatus);
-                    setState(() {
-                      _activityRecognitionPermissionResult = permissionResult;
-                    });
-                  },
-                  child: const Text("Check Activity Recognition permission")),
-              const SizedBox(
-                height: 30,
-              ),
-              Text(
-                  'OAuth permission status: ${_oAuthPermissionResult?.permissionStatus.toString()}'),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final permissionResult = await _healthConnectHostApi.requestOAuthPermission();
-                    setState(() {
-                      _oAuthPermissionResult = permissionResult;
-                    });
-                  },
-                  child: const Text("Request Google Fit OAuth permission")),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final result = await _healthConnectHostApi.hasOAuthPermission();
-                    final permissionStatus =
-                        result ? PermissionStatus.granted : PermissionStatus.denied;
-                    final permissionResult = PermissionResult(
-                        permissionType: PermissionType.oAuth, permissionStatus: permissionStatus);
-                    setState(() {
-                      _oAuthPermissionResult = permissionResult;
-                    });
-                  },
-                  child: const Text("Check OAuth permission")),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async => await _healthConnectHostApi.disconnect(),
-                  child: const Text("Disconnect from Google Fit")),
-              const SizedBox(
-                height: 30,
-              ),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async => await _healthConnectHostApi.openSettings(),
-                  child: const Text("Open settings")),
-              const Padding(
-                padding: EdgeInsets.only(top: 30),
-                child: Text("Data", style: titleStyle),
-              ),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final healthConnectData = await _healthConnectHostApi.getHealthConnectData();
-                    setState(() {
-                      _healthConnectData = healthConnectData;
-                    });
-                  },
-                  child: const Text("Request Health Data")),
-              TextButton(
-                  style: buttonStyle,
-                  onPressed: () async {
-                    final endDateTime = DateTime.now();
-                    final startDateTime = endDateTime.subtract(const Duration(days: 30));
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Package name', style: titleStyle),
+                Text('$_packageName', textAlign: TextAlign.center),
+                const Padding(
+                  padding: EdgeInsets.only(top: 30),
+                  child: Text("Permissions", style: titleStyle),
+                ),
+                Text('Permission status: ${_permissionsResult?.permissionStatus.toString()}'),
+                Text(
+                    'Activity Recognition status: ${_activityRecognitionPermissionResult?.permissionStatus.toString()}'),
+                Text(
+                    'Body sensors status: ${_bodySensorsPermissionResult?.permissionStatus.toString()}'),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final permissionResult = await _healthConnectHostApi.requestPermissions();
+                      setState(() {
+                        _permissionsResult = permissionResult;
+                      });
+                    },
+                    child: const Text("Request permissions")),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final result = await _healthConnectHostApi.hasActivityRecognitionPermission();
+                      final permissionStatus =
+                          result ? PermissionStatus.granted : PermissionStatus.denied;
+                      final permissionResult = PermissionResult(
+                          permissionType: PermissionType.activityRecognition,
+                          permissionStatus: permissionStatus);
+                      setState(() {
+                        _activityRecognitionPermissionResult = permissionResult;
+                      });
+                    },
+                    child: const Text("Check Activity Recognition permission")),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final result = await _healthConnectHostApi.hasBodySensorsPermission();
+                      final permissionStatus =
+                          result ? PermissionStatus.granted : PermissionStatus.denied;
+                      final permissionResult = PermissionResult(
+                          permissionType: PermissionType.bodySensors,
+                          permissionStatus: permissionStatus);
+                      setState(() {
+                        _bodySensorsPermissionResult = permissionResult;
+                      });
+                    },
+                    child: const Text("Check Body sensors permission")),
+                const SizedBox(
+                  height: 30,
+                ),
+                Text(
+                    'OAuth permission status: ${_oAuthPermissionResult?.permissionStatus.toString()}'),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final permissionResult = await _healthConnectHostApi.requestOAuthPermission();
+                      setState(() {
+                        _oAuthPermissionResult = permissionResult;
+                      });
+                    },
+                    child: const Text("Request Google Fit OAuth permission")),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final result = await _healthConnectHostApi.hasOAuthPermission();
+                      final permissionStatus =
+                          result ? PermissionStatus.granted : PermissionStatus.denied;
+                      final permissionResult = PermissionResult(
+                          permissionType: PermissionType.oAuth, permissionStatus: permissionStatus);
+                      setState(() {
+                        _oAuthPermissionResult = permissionResult;
+                      });
+                    },
+                    child: const Text("Check OAuth permission")),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async => await _healthConnectHostApi.disconnect(),
+                    child: const Text("Disconnect from Google Fit")),
+                const SizedBox(
+                  height: 30,
+                ),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async => await _healthConnectHostApi.openSettings(),
+                    child: const Text("Open settings")),
+                const Padding(
+                  padding: EdgeInsets.only(top: 30),
+                  child: Text("Data", style: titleStyle),
+                ),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final healthConnectData = await _healthConnectHostApi.getHealthConnectData();
+                      setState(() {
+                        _healthConnectData = healthConnectData;
+                      });
+                    },
+                    child: const Text("Request Health Data")),
+                TextButton(
+                    style: buttonStyle,
+                    onPressed: () async {
+                      final endDateTime = DateTime.now();
+                      final startDateTime = endDateTime.subtract(const Duration(days: 30));
 
-                    final predicate = Predicate(
-                        startDateInMsSinceEpoch: startDateTime.millisecondsSinceEpoch,
-                        endDateInMsSinceEpoch: endDateTime.millisecondsSinceEpoch);
-                    final healthConnectWorkoutsData =
-                        await _healthConnectHostApi.getHealthConnectWorkoutsData(predicate);
-                    setState(() {
-                      _healthConnectWorkoutsData = healthConnectWorkoutsData;
-                    });
-                    //final a = _healthConnectPlugin.testStream();
-                  },
-                  child: const Text("Request Workout Data")),
-              Text("Height: ${_healthConnectData?.height.toString()}"),
-              Text("Weight: ${_healthConnectData?.weight.toString()}"),
-            ],
+                      final predicate = Predicate(
+                          startDateInMsSinceEpoch: startDateTime.millisecondsSinceEpoch,
+                          endDateInMsSinceEpoch: endDateTime.millisecondsSinceEpoch);
+                      final healthConnectWorkoutsData =
+                          await _healthConnectHostApi.getHealthConnectWorkoutsData(predicate);
+                      setState(() {
+                        _healthConnectWorkoutsData = healthConnectWorkoutsData;
+                      });
+                      //final a = _healthConnectPlugin.testStream();
+                    },
+                    child: const Text("Request Workout Data")),
+                Text("Height: ${_healthConnectData?.height.toString()}"),
+                Text("Weight: ${_healthConnectData?.weight.toString()}"),
+              ],
+            ),
           ),
         ),
       ),

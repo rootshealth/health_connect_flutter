@@ -14,6 +14,7 @@ enum PermissionStatus {
 
 enum PermissionType {
   activityRecognition,
+  bodySensors,
   oAuth,
 }
 
@@ -324,9 +325,9 @@ class HealthConnectHostApi {
 
   static const MessageCodec<Object?> codec = _HealthConnectHostApiCodec();
 
-  Future<PermissionResult> requestActivityRecognitionPermission() async {
+  Future<PermissionResult> requestPermissions() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.HealthConnectHostApi.requestActivityRecognitionPermission', codec, binaryMessenger: _binaryMessenger);
+        'dev.flutter.pigeon.HealthConnectHostApi.requestPermissions', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {
@@ -354,6 +355,33 @@ class HealthConnectHostApi {
   Future<bool> hasActivityRecognitionPermission() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.HealthConnectHostApi.hasActivityRecognitionPermission', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(null) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else if (replyMap['result'] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyMap['result'] as bool?)!;
+    }
+  }
+
+  Future<bool> hasBodySensorsPermission() async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.HealthConnectHostApi.hasBodySensorsPermission', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
     if (replyMap == null) {

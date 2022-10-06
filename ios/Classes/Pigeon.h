@@ -15,7 +15,8 @@ typedef NS_ENUM(NSUInteger, PermissionStatus) {
 
 typedef NS_ENUM(NSUInteger, PermissionType) {
   PermissionTypeActivityRecognition = 0,
-  PermissionTypeOAuth = 1,
+  PermissionTypeBodySensors = 1,
+  PermissionTypeOAuth = 2,
 };
 
 typedef NS_ENUM(NSUInteger, WorkoutActivityType) {
@@ -196,9 +197,11 @@ NSObject<FlutterMessageCodec> *HealthConnectHostApiGetCodec(void);
 
 /// flutter call native
 @protocol HealthConnectHostApi
-- (void)requestActivityRecognitionPermissionWithCompletion:(void(^)(PermissionResult *_Nullable, FlutterError *_Nullable))completion;
+- (void)requestPermissionsWithCompletion:(void(^)(PermissionResult *_Nullable, FlutterError *_Nullable))completion;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)hasActivityRecognitionPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;
+/// @return `nil` only when `error != nil`.
+- (nullable NSNumber *)hasBodySensorsPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;
 - (void)requestOAuthPermissionWithCompletion:(void(^)(PermissionResult *_Nullable, FlutterError *_Nullable))completion;
 /// @return `nil` only when `error != nil`.
 - (nullable NSNumber *)hasOAuthPermissionWithError:(FlutterError *_Nullable *_Nonnull)error;

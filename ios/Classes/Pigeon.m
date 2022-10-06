@@ -244,13 +244,13 @@ void HealthConnectHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObj
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.requestActivityRecognitionPermission"
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.requestPermissions"
         binaryMessenger:binaryMessenger
         codec:HealthConnectHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(requestActivityRecognitionPermissionWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(requestActivityRecognitionPermissionWithCompletion:)", api);
+      NSCAssert([api respondsToSelector:@selector(requestPermissionsWithCompletion:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(requestPermissionsWithCompletion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        [api requestActivityRecognitionPermissionWithCompletion:^(PermissionResult *_Nullable output, FlutterError *_Nullable error) {
+        [api requestPermissionsWithCompletion:^(PermissionResult *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -270,6 +270,24 @@ void HealthConnectHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObj
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         FlutterError *error;
         NSNumber *output = [api hasActivityRecognitionPermissionWithError:&error];
+        callback(wrapResult(output, error));
+      }];
+    }
+    else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.HealthConnectHostApi.hasBodySensorsPermission"
+        binaryMessenger:binaryMessenger
+        codec:HealthConnectHostApiGetCodec()        ];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(hasBodySensorsPermissionWithError:)], @"HealthConnectHostApi api (%@) doesn't respond to @selector(hasBodySensorsPermissionWithError:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        FlutterError *error;
+        NSNumber *output = [api hasBodySensorsPermissionWithError:&error];
         callback(wrapResult(output, error));
       }];
     }

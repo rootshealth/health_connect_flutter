@@ -45,11 +45,11 @@ class HealthConnectHostApiImpl(
 
     private var receiver: BroadcastReceiver? = null
 
-    override fun requestActivityRecognitionPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
-        Timber.tag(TAG).d("requestActivityRecognitionPermission")
+    override fun requestPermissions(result: Pigeon.Result<Pigeon.PermissionResult>?) {
+        Timber.tag(TAG).d("requestPermissions")
         // https://stackoverflow.com/questions/65666404/java-lang-illegalstateexception-reply-already-submitted-when-trying-to-call
         var requestInProgress = false
-        if (hasActivityRecognitionPermission()) {
+        if (hasActivityRecognitionPermission() && hasBodySensorsPermission()) {
             result?.success(
                 Pigeon.PermissionResult.Builder()
                     .setPermissionType(Pigeon.PermissionType.ACTIVITY_RECOGNITION)
@@ -70,7 +70,7 @@ class HealthConnectHostApiImpl(
             addRequestPermissionsResultListener(PluginRegistry.RequestPermissionsResultListener { requestCode, permissions, grantResults ->
                 Timber.tag(TAG)
                     .d(
-                        """requestActivityRecognitionPermission:  
+                        """requestPermissions:  
                         addRequestPermissionsResultListener: 
                         requestCode $requestCode 
                         permissions: ${permissions.map { it.toString() }}
@@ -98,7 +98,7 @@ class HealthConnectHostApiImpl(
                     else -> {
                         if (requestInProgress) {
                             requestInProgress = false
-                            val error = """requestActivityRecognitionPermission:  
+                            val error = """requestPermissions:  
                         addRequestPermissionsResultListener: 
                         requestCode $requestCode 
                         permissions: ${permissions.map { it.toString() }}
@@ -114,18 +114,32 @@ class HealthConnectHostApiImpl(
             requestInProgress = true
             return
         }
-        Timber.tag(TAG).e("requestActivityRecognitionPermission: Activity was not attached")
+        Timber.tag(TAG).e("requestPermissions: Activity was not attached")
     }
 
     override fun hasActivityRecognitionPermission(): Boolean {
-        Timber.tag(TAG).d("hasActivityRecognitionPermission")
         activityPluginBinding?.activity?.let {
-            return ContextCompat.checkSelfPermission(
+            val permissionGranted = ContextCompat.checkSelfPermission(
                 it,
                 Permission.Type.ACTIVITY_RECOGNITION_PERMISSION
             ) == PackageManager.PERMISSION_GRANTED
+            Timber.tag(TAG).d("hasActivityRecognitionPermission: $permissionGranted")
+            return permissionGranted
         }
         Timber.tag(TAG).e("hasActivityRecognitionPermission: Activity was not attached")
+        return false
+    }
+
+    override fun hasBodySensorsPermission(): Boolean {
+        activityPluginBinding?.activity?.let {
+            val permissionGranted = ContextCompat.checkSelfPermission(
+                it,
+                Permission.Type.BODY_SENSORS
+            ) == PackageManager.PERMISSION_GRANTED
+            Timber.tag(TAG).d("hasBodySensorPermission: $permissionGranted")
+            return permissionGranted
+        }
+        Timber.tag(TAG).e("hasBodySensorPermission: Activity was not attached")
         return false
     }
 
@@ -193,9 +207,10 @@ class HealthConnectHostApiImpl(
     }
 
     override fun hasOAuthPermission(): Boolean {
-        Timber.tag(TAG).d("hasOAuthPermission")
         activityPluginBinding?.activity?.let { activity ->
             val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
+            val hasPermissions = GoogleSignIn.hasPermissions(account, fitnessOptions)
+            Timber.tag(TAG).d("hasOAuthPermission: $hasPermissions")
             return GoogleSignIn.hasPermissions(account, fitnessOptions)
         }
         Timber.tag(TAG).e("hasOAuthPermission: Activity was not attached")
