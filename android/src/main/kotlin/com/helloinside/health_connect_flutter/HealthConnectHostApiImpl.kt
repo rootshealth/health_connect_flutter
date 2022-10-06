@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -68,7 +67,16 @@ class HealthConnectHostApiImpl(
                 ),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
-            addRequestPermissionsResultListener(PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
+            addRequestPermissionsResultListener(PluginRegistry.RequestPermissionsResultListener { requestCode, permissions, grantResults ->
+                Timber.tag(TAG)
+                    .d(
+                        """requestActivityRecognitionPermission:  
+                        addRequestPermissionsResultListener: 
+                        requestCode $requestCode 
+                        permissions: ${permissions.map { it.toString() }}
+                        grantResults: ${grantResults.map { it.toString() }}
+                        """
+                    )
                 when (requestCode) {
                     Permission.Code.ACTIVITY_RECOGNITION -> {
                         val permissionGranted = grantResults.isNotEmpty() &&
@@ -90,7 +98,14 @@ class HealthConnectHostApiImpl(
                     else -> {
                         if (requestInProgress) {
                             requestInProgress = false
-                            result?.error(Exception("Something went wrong! Error code could not be retrieved"))
+                            val error = """requestActivityRecognitionPermission:  
+                        addRequestPermissionsResultListener: 
+                        requestCode $requestCode 
+                        permissions: ${permissions.map { it.toString() }}
+                        grantResults: ${grantResults.map { it.toString() }}
+                        """
+                            Timber.tag(TAG).e(error)
+                            result?.error(Exception(error))
                         }
                         return@RequestPermissionsResultListener false
                     }
@@ -136,7 +151,17 @@ class HealthConnectHostApiImpl(
                 account,
                 fitnessOptions
             )
-            addActivityResultListener(PluginRegistry.ActivityResultListener { requestCode, resultCode, _ ->
+            addActivityResultListener(PluginRegistry.ActivityResultListener { requestCode, resultCode, data ->
+                Timber.tag(TAG)
+                    .d(
+                        """requestOAuthPermission:  
+                        addActivityResultListener: 
+                        requestCode $requestCode 
+                        resultCode: $resultCode
+                        data: ${data?.toString() ?: "null"}
+                        """
+                    )
+
                 if (resultCode == Activity.RESULT_OK && requestCode == Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
                     val permissionResult = Pigeon.PermissionResult.Builder()
                         .setPermissionType(Pigeon.PermissionType.O_AUTH)
@@ -150,8 +175,13 @@ class HealthConnectHostApiImpl(
                 }
                 if (requestInProgress) {
                     requestInProgress = false
-                    val error = "Something went wrong! Error code could not be retrieved";
-                    Timber.tag(TAG).e("requestOAuthPermission: $error")
+                    val error = """requestOAuthPermission:  
+                        Something went wrong! Error code could not be retrieved! 
+                        requestCode $requestCode 
+                        resultCode: $resultCode
+                        data: ${data?.toString() ?: "null"}
+                        """
+                    Timber.tag(TAG).e(error)
                     result?.error(Exception(error))
                 }
                 return@ActivityResultListener false
