@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.helloinside.health_connect_flutter_example">
 
     <application
         android:name="${applicationName}"

@@ -9,20 +9,24 @@ import timber.log.Timber
 class HealthConnectFlutterPlugin : FlutterPlugin, ActivityAware {
 
     private lateinit var healthConnectHostApiImpl: HealthConnectHostApiImpl
-    private lateinit var healthConnectFlutterApi: Pigeon.HealthConnectFlutterApi
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         // TODO enable once Google Fit is ready
         //if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
+        Timber.plant(Timber.DebugTree())
         //}
-        healthConnectHostApiImpl = HealthConnectHostApiImpl(null, null)
+        healthConnectHostApiImpl =
+            HealthConnectHostApiImpl(
+                null,
+                null,
+                null,
+            )
         Pigeon.HealthConnectHostApi.setup(
             binding.binaryMessenger,
             healthConnectHostApiImpl
         )
-        healthConnectFlutterApi = Pigeon.HealthConnectFlutterApi(binding.binaryMessenger)
-        healthConnectHostApiImpl.healthConnectFlutterApi = healthConnectFlutterApi
+        healthConnectHostApiImpl.healthConnectFlutterApi =
+            Pigeon.HealthConnectFlutterApi(binding.binaryMessenger)
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -32,19 +36,24 @@ class HealthConnectFlutterPlugin : FlutterPlugin, ActivityAware {
         )
     }
 
-    override fun onAttachedToActivity(activityPluginBinding: ActivityPluginBinding) {
+    override fun onAttachedToActivity(activityPluginBinding: ActivityPluginBinding) =
+        setupHealthConnectHostApiImpl(activityPluginBinding)
+
+    override fun onDetachedFromActivity() = cleanUp()
+
+    override fun onReattachedToActivityForConfigChanges(activityPluginBinding: ActivityPluginBinding) =
+        setupHealthConnectHostApiImpl(activityPluginBinding)
+
+    override fun onDetachedFromActivityForConfigChanges() = cleanUp()
+
+    private fun setupHealthConnectHostApiImpl(activityPluginBinding: ActivityPluginBinding) {
         healthConnectHostApiImpl.activityPluginBinding = activityPluginBinding
+        healthConnectHostApiImpl.permissionManager = PermissionManager(activityPluginBinding)
     }
 
-    override fun onDetachedFromActivity() {
-        healthConnectHostApiImpl.activityPluginBinding = null
-    }
-
-    override fun onReattachedToActivityForConfigChanges(activityPluginBinding: ActivityPluginBinding) {
-        healthConnectHostApiImpl.activityPluginBinding = activityPluginBinding
-    }
-
-    override fun onDetachedFromActivityForConfigChanges() {
+    private fun cleanUp() {
+        healthConnectHostApiImpl.permissionManager?.cleanUp()
+        healthConnectHostApiImpl.permissionManager = null
         healthConnectHostApiImpl.activityPluginBinding = null
     }
 

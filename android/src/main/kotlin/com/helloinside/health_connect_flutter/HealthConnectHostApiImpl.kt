@@ -1,6 +1,5 @@
 package com.helloinside.health_connect_flutter
 
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -21,8 +20,8 @@ import com.google.android.gms.fitness.data.Field
 import com.google.android.gms.fitness.data.Session
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.request.SessionReadRequest
+import com.helloinside.health_connect_flutter.Pigeon.PermissionResult
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.PluginRegistry
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -33,7 +32,8 @@ class OAuthPermissionException :
 
 class HealthConnectHostApiImpl(
     var activityPluginBinding: ActivityPluginBinding?,
-    var healthConnectFlutterApi: Pigeon.HealthConnectFlutterApi?
+    var healthConnectFlutterApi: Pigeon.HealthConnectFlutterApi?,
+    var permissionManager: PermissionManager?,
 ) :
     Pigeon.HealthConnectHostApi {
 
@@ -47,18 +47,16 @@ class HealthConnectHostApiImpl(
 
     override fun requestPermissions(result: Pigeon.Result<Pigeon.PermissionResult>?) {
         Timber.tag(TAG).d("requestPermissions")
-        // https://stackoverflow.com/questions/65666404/java-lang-illegalstateexception-reply-already-submitted-when-trying-to-call
-        var requestInProgress = false
-        if (hasActivityRecognitionPermission() && hasBodySensorsPermission()) {
-            result?.success(
-                Pigeon.PermissionResult.Builder()
-                    .setPermissionType(Pigeon.PermissionType.ACTIVITY_RECOGNITION)
-                    .setPermissionStatus(Pigeon.PermissionStatus.GRANTED)
-                    .build()
-            )
-            return
-        }
         activityPluginBinding?.apply {
+            permissionManager?.callback = object : PermissionManager.Callback {
+                override fun onSuccess(permissionResult: PermissionResult) {
+                    result?.success(permissionResult)
+                }
+
+                override fun onError(exception: Exception) {
+                    result?.error(exception)
+                }
+            }
             ActivityCompat.requestPermissions(
                 activity,
                 arrayOf(
@@ -67,51 +65,6 @@ class HealthConnectHostApiImpl(
                 ),
                 Permission.Code.ACTIVITY_RECOGNITION
             )
-            addRequestPermissionsResultListener(PluginRegistry.RequestPermissionsResultListener { requestCode, permissions, grantResults ->
-                Timber.tag(TAG)
-                    .d(
-                        """requestPermissions:  
-                        addRequestPermissionsResultListener: 
-                        requestCode $requestCode 
-                        permissions: ${permissions.map { it.toString() }}
-                        grantResults: ${grantResults.map { it.toString() }}
-                        """
-                    )
-                when (requestCode) {
-                    Permission.Code.ACTIVITY_RECOGNITION -> {
-                        val permissionGranted = grantResults.isNotEmpty() &&
-                                grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        val permissionStatus = when (permissionGranted) {
-                            true -> Pigeon.PermissionStatus.GRANTED
-                            else -> Pigeon.PermissionStatus.DENIED
-                        }
-                        val permissionResult = Pigeon.PermissionResult.Builder()
-                            .setPermissionType(Pigeon.PermissionType.ACTIVITY_RECOGNITION)
-                            .setPermissionStatus(permissionStatus)
-                            .build()
-                        if (requestInProgress) {
-                            requestInProgress = false
-                            result?.success(permissionResult)
-                        }
-                        return@RequestPermissionsResultListener true
-                    }
-                    else -> {
-                        if (requestInProgress) {
-                            requestInProgress = false
-                            val error = """requestPermissions:  
-                        addRequestPermissionsResultListener: 
-                        requestCode $requestCode 
-                        permissions: ${permissions.map { it.toString() }}
-                        grantResults: ${grantResults.map { it.toString() }}
-                        """
-                            Timber.tag(TAG).e(error)
-                            result?.error(Exception(error))
-                        }
-                        return@RequestPermissionsResultListener false
-                    }
-                }
-            })
-            requestInProgress = true
             return
         }
         Timber.tag(TAG).e("requestPermissions: Activity was not attached")
@@ -145,18 +98,16 @@ class HealthConnectHostApiImpl(
 
     override fun requestOAuthPermission(result: Pigeon.Result<Pigeon.PermissionResult>?) {
         Timber.tag(TAG).d("requestOAuthPermission")
-        var requestInProgress = false
-        if (hasOAuthPermission()) {
-            result?.success(
-                Pigeon.PermissionResult.Builder()
-                    .setPermissionType(Pigeon.PermissionType.O_AUTH)
-                    .setPermissionStatus(Pigeon.PermissionStatus.GRANTED)
-                    .build()
-            )
-            return
-        }
-
         activityPluginBinding?.apply {
+            permissionManager?.callback = object : PermissionManager.Callback {
+                override fun onSuccess(permissionResult: PermissionResult) {
+                    result?.success(permissionResult)
+                }
+
+                override fun onError(exception: Exception) {
+                    result?.error(exception)
+                }
+            }
             val account =
                 GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
             GoogleSignIn.requestPermissions(
@@ -165,42 +116,6 @@ class HealthConnectHostApiImpl(
                 account,
                 fitnessOptions
             )
-            addActivityResultListener(PluginRegistry.ActivityResultListener { requestCode, resultCode, data ->
-                Timber.tag(TAG)
-                    .d(
-                        """requestOAuthPermission:  
-                        addActivityResultListener: 
-                        requestCode $requestCode 
-                        resultCode: $resultCode
-                        data: ${data?.toString() ?: "null"}
-                        """
-                    )
-
-                if (resultCode == Activity.RESULT_OK && requestCode == Permission.Code.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-                    val permissionResult = Pigeon.PermissionResult.Builder()
-                        .setPermissionType(Pigeon.PermissionType.O_AUTH)
-                        .setPermissionStatus(Pigeon.PermissionStatus.GRANTED)
-                        .build()
-                    if (requestInProgress) {
-                        requestInProgress = false
-                        result?.success(permissionResult)
-                    }
-                    return@ActivityResultListener true
-                }
-                if (requestInProgress) {
-                    requestInProgress = false
-                    val error = """requestOAuthPermission:  
-                        Something went wrong! Error code could not be retrieved! 
-                        requestCode $requestCode 
-                        resultCode: $resultCode
-                        data: ${data?.toString() ?: "null"}
-                        """
-                    Timber.tag(TAG).e(error)
-                    result?.error(Exception(error))
-                }
-                return@ActivityResultListener false
-            })
-            requestInProgress = true
             return
         }
         Timber.tag(TAG).e("requestOAuthPermission: Activity was not attached")
